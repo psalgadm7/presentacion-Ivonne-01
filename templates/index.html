@@ -1,0 +1,283 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Laminas Grupal 2</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d0f1a;
+      color: #d0d6e8;
+      font-family: "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      width: 100%;
+      background: rgba(13,15,26,.95);
+      border-bottom: 1px solid #1e2235;
+      padding: 0.7rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    header h1 { font-size: 1rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #7ea8d8; }
+    .ctrl-group { display: flex; align-items: center; gap: 0.55rem; flex-wrap: wrap; }
+    label { font-size: 0.8rem; color: #8a91aa; }
+    select, button {
+      background: #1a1d2e; border: 1px solid #2e3250; border-radius: 7px;
+      color: #d0d6e8; padding: 0.28rem 0.7rem; font-size: 0.82rem;
+      cursor: pointer; transition: background .15s;
+    }
+    select:hover, button:hover { background: #252840; }
+    button.active { background: #3a4a7a; border-color: #5070bb; }
+    .stage {
+      width: 100%; max-width: 960px; margin-top: 1.5rem;
+      padding: 0 1rem; flex: 1;
+      display: flex; flex-direction: column; align-items: center; gap: 1rem;
+    }
+    .carousel-wrap { width: 100%; position: relative; }
+    .carousel-viewport {
+      width: 100%; aspect-ratio: 4/3; position: relative;
+      overflow: hidden; border-radius: 14px; background: #000;
+      box-shadow: 0 10px 40px rgba(0,0,0,.7);
+    }
+    .slide {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+    }
+    .slide img { width: 100%; height: 100%; object-fit: contain; display: block; user-select: none; }
+    .slide.current { opacity: 1; pointer-events: auto; z-index: 2; }
+
+    /* EFECTOS */
+    .fx-slide .slide { transform: translateX(100%); transition: transform .55s ease, opacity 0s .55s; opacity: 1; }
+    .fx-slide .slide.current { transform: translateX(0); transition: transform .55s ease; }
+    .fx-slide .slide.leaving { transform: translateX(-100%); transition: transform .55s ease; opacity: 1; z-index: 3; }
+
+    .fx-slide-v .slide { transform: translateY(100%); transition: transform .55s ease, opacity 0s .55s; opacity: 1; }
+    .fx-slide-v .slide.current { transform: translateY(0); transition: transform .55s ease; }
+    .fx-slide-v .slide.leaving { transform: translateY(-100%); transition: transform .55s ease; opacity: 1; z-index: 3; }
+
+    .fx-fade .slide { transition: opacity .7s ease; }
+    .fx-fade .slide.current { opacity: 1; }
+    .fx-fade .slide.leaving { opacity: 0; z-index: 3; transition: opacity .7s ease; }
+
+    .fx-zoom .slide { transform: scale(1.12); transition: opacity .6s ease, transform .6s ease; }
+    .fx-zoom .slide.current { opacity: 1; transform: scale(1); }
+    .fx-zoom .slide.leaving { opacity: 0; transform: scale(.88); z-index: 3; transition: opacity .6s ease, transform .6s ease; }
+
+    .fx-flip { perspective: 1200px; }
+    .fx-flip .slide { transform: rotateY(90deg); transition: opacity 0s .35s, transform .35s ease; opacity: 0; }
+    .fx-flip .slide.current { transform: rotateY(0deg); opacity: 1; transition: transform .45s ease .35s; }
+    .fx-flip .slide.leaving { transform: rotateY(-90deg); opacity: 1; transition: transform .35s ease; z-index: 3; }
+
+    .fx-blur .slide { filter: blur(18px); transition: opacity .6s ease, filter .6s ease; }
+    .fx-blur .slide.current { opacity: 1; filter: blur(0); }
+    .fx-blur .slide.leaving { opacity: 0; filter: blur(18px); z-index: 3; transition: opacity .6s ease, filter .6s ease; }
+
+    .fx-kenburns .slide { transform: scale(1); transition: opacity .8s ease; }
+    .fx-kenburns .slide.current { opacity: 1; animation: kb 7s ease-in-out infinite alternate; }
+    .fx-kenburns .slide.leaving { opacity: 0; z-index: 3; }
+    @keyframes kb { from { transform: scale(1) translate(0,0); } to { transform: scale(1.1) translate(-2%,-1%); } }
+
+    .fx-rotate .slide { transform: rotate(8deg) scale(.7); transition: opacity .5s ease, transform .5s ease; }
+    .fx-rotate .slide.current { opacity: 1; transform: rotate(0deg) scale(1); }
+    .fx-rotate .slide.leaving { opacity: 0; transform: rotate(-8deg) scale(.7); z-index: 3; transition: opacity .5s ease, transform .5s ease; }
+
+    .nav-btn {
+      position: absolute; top: 50%; transform: translateY(-50%); z-index: 10;
+      background: rgba(0,0,0,.45); border: none; border-radius: 50%;
+      width: 46px; height: 46px; font-size: 1.4rem; color: #fff;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .2s;
+    }
+    .nav-btn:hover { background: rgba(0,0,0,.75); }
+    .nav-btn.prev { left: .7rem; }
+    .nav-btn.next { right: .7rem; }
+
+    .indicators { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; max-width: 100%; padding: 0 1rem; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: #2e3250; border: none; cursor: pointer; transition: background .2s, transform .2s; flex-shrink: 0; }
+    .dot.active { background: #7ea8d8; transform: scale(1.4); }
+
+    .info-bar { display: flex; justify-content: space-between; align-items: center; width: 100%; font-size: 0.8rem; color: #5a6080; padding: 0 .2rem; }
+
+    .thumbnails { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; width: 100%; scrollbar-width: thin; scrollbar-color: #2e3250 transparent; }
+    .thumb { flex-shrink: 0; width: 64px; height: 48px; object-fit: cover; border-radius: 5px; cursor: pointer; border: 2px solid transparent; opacity: .55; transition: opacity .2s, border-color .2s; }
+    .thumb.active { border-color: #7ea8d8; opacity: 1; }
+
+    .progress-wrap { width: 100%; height: 3px; background: #1a1d2e; border-radius: 2px; overflow: hidden; }
+    .progress-bar { height: 100%; background: #7ea8d8; width: 0%; transition: width linear; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Laminas Grupal 2</h1>
+  <div class="ctrl-group">
+    <label>Efecto:</label>
+    <select id="selEffect" onchange="setEffect(this.value)">
+      <option value="fx-slide">Deslizar</option>
+      <option value="fx-slide-v">Deslizar vertical</option>
+      <option value="fx-fade">Fundido</option>
+      <option value="fx-zoom">Zoom</option>
+      <option value="fx-flip">Flip 3D</option>
+      <option value="fx-blur">Blur</option>
+      <option value="fx-kenburns">Ken Burns</option>
+      <option value="fx-rotate">Girar</option>
+    </select>
+    <label>Vel.:</label>
+    <select id="selSpeed" onchange="setSpeed(this.value)">
+      <option value="1500">1.5 s</option>
+      <option value="3000" selected>3 s</option>
+      <option value="5000">5 s</option>
+      <option value="8000">8 s</option>
+      <option value="0">Manual</option>
+    </select>
+    <button id="btnPause" onclick="togglePause()">Pausar</button>
+    <button onclick="toggleFullscreen()">Pantalla completa</button>
+  </div>
+</header>
+
+<div class="stage">
+  <div class="carousel-wrap">
+    <div class="carousel-viewport fx-slide" id="viewport">
+      {% for img in images %}
+      <div class="slide {% if loop.first %}current{% endif %}" data-index="{{ loop.index0 }}">
+        <img src="{{ url_for('serve_image', filename=img) }}" alt="{{ img }}" loading="lazy" draggable="false" />
+      </div>
+      {% endfor %}
+    </div>
+    <button class="nav-btn prev" onclick="move(-1)">&#8249;</button>
+    <button class="nav-btn next" onclick="move(1)">&#8250;</button>
+  </div>
+
+  <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+
+  <div class="info-bar">
+    <span id="imgName"></span>
+    <span id="counter"></span>
+  </div>
+
+  <div class="indicators" id="dots"></div>
+
+  <div class="thumbnails">
+    {% for img in images %}
+    <img class="thumb {% if loop.first %}active{% endif %}"
+      src="{{ url_for('serve_image', filename=img) }}"
+      alt="{{ img }}" loading="lazy" onclick="goTo({{ loop.index0 }})" />
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  const images = [{% for img in images %}"{{ img }}"{% if not loop.last %},{% endif %}{% endfor %}];
+  const total = images.length;
+  let current = 0, paused = false, intervalId = null, speed = 3000, isAnimating = false;
+
+  const viewport   = document.getElementById("viewport");
+  const slides     = Array.from(document.querySelectorAll(".slide"));
+  const dotsEl     = document.getElementById("dots");
+  const thumbs     = Array.from(document.querySelectorAll(".thumb"));
+  const counterEl  = document.getElementById("counter");
+  const imgNameEl  = document.getElementById("imgName");
+  const progressEl = document.getElementById("progressBar");
+
+  slides.forEach((_, i) => {
+    const d = document.createElement("button");
+    d.className = "dot" + (i === 0 ? " active" : "");
+    d.setAttribute("aria-label", "Imagen " + (i+1));
+    d.onclick = () => goTo(i);
+    dotsEl.appendChild(d);
+  });
+  const dots = Array.from(dotsEl.querySelectorAll(".dot"));
+
+  function updateUI() {
+    counterEl.textContent = (current + 1) + " / " + total;
+    imgNameEl.textContent = images[current];
+    dots.forEach((d, i) => d.classList.toggle("active", i === current));
+    thumbs.forEach((t, i) => {
+      t.classList.toggle("active", i === current);
+      if (i === current) t.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+    });
+  }
+
+  function goTo(index) {
+    if (isAnimating || index === current) return;
+    isAnimating = true;
+    const prev = current;
+    current = ((index % total) + total) % total;
+    slides[prev].classList.add("leaving");
+    slides[prev].classList.remove("current");
+    slides[current].classList.add("current");
+    const td = getComputedStyle(slides[0]).transitionDuration || "0.6s";
+    const ms = Math.max(...td.split(",").map(p => parseFloat(p) * (p.includes("ms") ? 1 : 1000)));
+    setTimeout(() => { slides[prev].classList.remove("leaving"); isAnimating = false; }, (isNaN(ms) ? 600 : ms) + 60);
+    updateUI();
+    resetProgress();
+  }
+
+  function move(dir) { goTo(current + dir); if (!paused && speed > 0) restartInterval(); }
+
+  function startInterval() { if (speed === 0) return; clearInterval(intervalId); intervalId = setInterval(() => move(1), speed); }
+  function restartInterval() { clearInterval(intervalId); startInterval(); }
+
+  function togglePause() {
+    paused = !paused;
+    const btn = document.getElementById("btnPause");
+    if (paused) {
+      clearInterval(intervalId);
+      progressEl.style.transition = "none";
+      btn.textContent = "Reanudar"; btn.classList.add("active");
+    } else {
+      btn.textContent = "Pausar"; btn.classList.remove("active");
+      startInterval(); resetProgress();
+    }
+  }
+
+  function resetProgress() {
+    if (speed === 0 || paused) return;
+    progressEl.style.transition = "none"; progressEl.style.width = "0%";
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      progressEl.style.transition = "width " + speed + "ms linear";
+      progressEl.style.width = "100%";
+    }));
+  }
+
+  function setEffect(fx) { viewport.className = "carousel-viewport " + fx; }
+
+  function setSpeed(val) {
+    speed = parseInt(val); clearInterval(intervalId);
+    if (speed > 0 && !paused) { startInterval(); resetProgress(); }
+    else { progressEl.style.transition = "none"; progressEl.style.width = "0%"; }
+  }
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) document.querySelector(".carousel-wrap").requestFullscreen();
+    else document.exitFullscreen();
+  }
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "ArrowLeft")  move(-1);
+    if (e.key === "ArrowRight") move(1);
+    if (e.key === " ") { e.preventDefault(); togglePause(); }
+    if (e.key === "f") toggleFullscreen();
+  });
+
+  let touchX = 0;
+  viewport.addEventListener("touchstart", e => { touchX = e.touches[0].clientX; }, { passive: true });
+  viewport.addEventListener("touchend",   e => { const dx = e.changedTouches[0].clientX - touchX; if (Math.abs(dx) > 40) move(dx < 0 ? 1 : -1); });
+
+  document.querySelector(".thumbnails").addEventListener("wheel", e => { e.currentTarget.scrollLeft += e.deltaY; e.preventDefault(); }, { passive: false });
+
+  updateUI(); startInterval(); resetProgress();
+</script>
+</body>
+</html>
