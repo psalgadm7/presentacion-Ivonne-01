@@ -55,6 +55,26 @@ def guardar_orden():
     return jsonify({"ok": True, "total": len(orden_seguro)})
 
 
+@app.route("/api/imagen/<filename>", methods=["DELETE"])
+def eliminar_imagen(filename):
+    # Validar nombre: solo el basename, sin rutas relativas
+    if filename != os.path.basename(filename):
+        return jsonify({"ok": False, "error": "Nombre inválido"}), 400
+    filepath = os.path.join(LAMINAS_DIR, filename)
+    ext = os.path.splitext(filename)[1].lower()
+    if ext not in ALLOWED_EXTENSIONS or not os.path.isfile(filepath):
+        return jsonify({"ok": False, "error": "Archivo no encontrado"}), 404
+    os.remove(filepath)
+    # Quitar del orden guardado si existe
+    if os.path.exists(ORDEN_FILE):
+        with open(ORDEN_FILE) as f:
+            orden = json.load(f)
+        orden = [img for img in orden if img != filename]
+        with open(ORDEN_FILE, "w") as f:
+            json.dump(orden, f)
+    return jsonify({"ok": True})
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)

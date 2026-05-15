@@ -38,7 +38,7 @@
       grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
       gap: 12px; padding: 1.5rem;
     }
-    .card {
+    .card { position: relative;
       background: #1a1d2e; border: 2px solid #2e3250; border-radius: 10px;
       overflow: hidden; cursor: grab; user-select: none;
       transition: border-color .2s, box-shadow .2s;
@@ -58,6 +58,14 @@
       display: inline-block; background: #2e3250; border-radius: 4px;
       padding: 0 5px; font-size: 0.68rem; color: #7ea8d8; margin-right: 4px;
     }
+    .btn-del {
+      position: absolute; top: 5px; right: 5px;
+      background: rgba(180,40,40,.85); border: none; border-radius: 50%;
+      width: 26px; height: 26px; font-size: 0.85rem; color: #fff;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity .2s;
+    }
+    .card:hover .btn-del { opacity: 1; }
   </style>
 </head>
 <body>
@@ -75,6 +83,7 @@
   {% for img in images %}
   <div class="card" data-img="{{ img }}">
     <img src="{{ url_for('serve_image', filename=img) }}" alt="{{ img }}" loading="lazy" />
+    <button class="btn-del" title="Eliminar" onclick="eliminar(this, '{{ img }}')" >&#x2715;</button>
     <div class="card-label">
       <span class="num">{{ loop.index }}</span>{{ img }}
     </div>
@@ -96,6 +105,20 @@
     grid.querySelectorAll(".card").forEach((card, i) => {
       card.querySelector(".num").textContent = i + 1;
     });
+  }
+
+  function eliminar(btn, img) {
+    if (!confirm(`¿Eliminar "${img}" permanentemente?`)) return;
+    fetch(`/api/imagen/${encodeURIComponent(img)}`, { method: "DELETE" })
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok) {
+          btn.closest(".card").remove();
+          actualizarNumeros();
+        } else {
+          alert("Error al eliminar: " + data.error);
+        }
+      });
   }
 
   function guardar() {
