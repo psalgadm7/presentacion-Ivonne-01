@@ -136,25 +136,24 @@
     #splash:hover .play-btn { background: #5070bb; transform: scale(1.08); }
 
     /* Pantalla completa */
-    .carousel-wrap:fullscreen,
-    .carousel-wrap:-webkit-full-screen,
-    .carousel-wrap:-moz-full-screen {
-      width: 100vw; height: 100vh;
-      background: #000;
-      display: flex; align-items: center; justify-content: center;
+    .carousel-wrap.is-fullscreen {
+      width: 100vw !important; height: 100vh !important;
+      background: #000 !important;
+      display: flex !important; align-items: center !important; justify-content: center !important;
+      position: fixed !important; inset: 0 !important;
     }
-    .carousel-wrap:fullscreen .carousel-viewport,
-    .carousel-wrap:-webkit-full-screen .carousel-viewport,
-    .carousel-wrap:-moz-full-screen .carousel-viewport {
-      width: 100vw; height: 100vh;
-      aspect-ratio: unset;
-      border-radius: 0;
+    .carousel-wrap.is-fullscreen .carousel-viewport {
+      width: 100vw !important; height: 100vh !important;
+      aspect-ratio: auto !important;
+      border-radius: 0 !important;
+      max-width: none !important;
     }
-    .carousel-wrap:fullscreen .slide img,
-    .carousel-wrap:-webkit-full-screen .slide img,
-    .carousel-wrap:-moz-full-screen .slide img {
-      object-fit: contain;
-      width: 100%; height: 100%;
+    .carousel-wrap.is-fullscreen .slide {
+      position: absolute !important; inset: 0 !important;
+    }
+    .carousel-wrap.is-fullscreen .slide img {
+      width: 100% !important; height: 100% !important;
+      object-fit: contain !important;
     }
   </style>
 </head>
@@ -331,8 +330,16 @@
 
   function startPresentation() {
     document.getElementById("splash").style.display = "none";
-    document.querySelector(".carousel-wrap").requestFullscreen().catch(() => {});
+    const wrap = document.querySelector(".carousel-wrap");
+    wrap.requestFullscreen().catch(() => {});
   }
+
+  document.addEventListener("fullscreenchange", () => {
+    document.querySelector(".carousel-wrap").classList.toggle("is-fullscreen", !!document.fullscreenElement);
+  });
+  document.addEventListener("webkitfullscreenchange", () => {
+    document.querySelector(".carousel-wrap").classList.toggle("is-fullscreen", !!document.webkitFullscreenElement);
+  });
 </script>
 </body>
 </html>
