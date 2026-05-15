@@ -177,10 +177,10 @@
     <label>Vel.:</label>
     <select id="selSpeed" onchange="setSpeed(this.value)">
       <option value="1500">1.5 s</option>
-      <option value="3000" selected>3 s</option>
+      <option value="3000">3 s</option>
       <option value="5000">5 s</option>
       <option value="8000">8 s</option>
-      <option value="0">Manual</option>
+      <option value="0" selected>Manual</option>
     </select>
     <button id="btnPause" onclick="togglePause()">Pausar</button>
     <button onclick="toggleFullscreen()">Pantalla completa</button>
@@ -227,7 +227,7 @@
 <script>
   const images = [{% for img in images %}"{{ img }}"{% if not loop.last %},{% endif %}{% endfor %}];
   const total = images.length;
-  let current = 0, paused = false, intervalId = null, speed = 3000, isAnimating = false;
+  let current = 0, paused = false, intervalId = null, speed = 0, isAnimating = false;
 
   const viewport   = document.getElementById("viewport");
   const slides     = Array.from(document.querySelectorAll(".slide"));
