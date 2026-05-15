@@ -115,6 +115,28 @@
 
     .progress-wrap { width: 100%; height: 3px; background: #1a1d2e; border-radius: 2px; overflow: hidden; }
     .progress-bar { height: 100%; background: #7ea8d8; width: 0%; transition: width linear; }
+
+    /* Pantalla completa */
+    .carousel-wrap:fullscreen,
+    .carousel-wrap:-webkit-full-screen,
+    .carousel-wrap:-moz-full-screen {
+      width: 100vw; height: 100vh;
+      background: #000;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .carousel-wrap:fullscreen .carousel-viewport,
+    .carousel-wrap:-webkit-full-screen .carousel-viewport,
+    .carousel-wrap:-moz-full-screen .carousel-viewport {
+      width: 100vw; height: 100vh;
+      aspect-ratio: unset;
+      border-radius: 0;
+    }
+    .carousel-wrap:fullscreen .slide img,
+    .carousel-wrap:-webkit-full-screen .slide img,
+    .carousel-wrap:-moz-full-screen .slide img {
+      object-fit: contain;
+      width: 100%; height: 100%;
+    }
   </style>
 </head>
 <body>
