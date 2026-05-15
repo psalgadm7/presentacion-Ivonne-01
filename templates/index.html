@@ -299,7 +299,18 @@
 
   document.querySelector(".thumbnails").addEventListener("wheel", e => { e.currentTarget.scrollLeft += e.deltaY; e.preventDefault(); }, { passive: false });
 
+  // Click en la imagen avanza a la siguiente
+  viewport.addEventListener("click", () => move(1));
+
   updateUI(); startInterval(); resetProgress();
+
+  // Pantalla completa al cargar (requiere interacción del usuario)
+  document.addEventListener("click", function enterFS() {
+    if (!document.fullscreenElement) {
+      document.querySelector(".carousel-wrap").requestFullscreen().catch(() => {});
+    }
+    document.removeEventListener("click", enterFS);
+  }, { once: true });
 </script>
 </body>
 </html>
