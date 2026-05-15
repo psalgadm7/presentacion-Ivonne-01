@@ -116,6 +116,25 @@
     .progress-wrap { width: 100%; height: 3px; background: #1a1d2e; border-radius: 2px; overflow: hidden; }
     .progress-bar { height: 100%; background: #7ea8d8; width: 0%; transition: width linear; }
 
+    /* Overlay de inicio */
+    #splash {
+      position: fixed; inset: 0; z-index: 999;
+      background: #0d0f1a;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 1.5rem;
+      cursor: pointer;
+    }
+    #splash h2 { font-size: 1.8rem; color: #7ea8d8; letter-spacing: 3px; text-transform: uppercase; }
+    #splash p  { color: #5a6080; font-size: 1rem; }
+    #splash .play-btn {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: #3a4a7a; border: 2px solid #5070bb;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.2rem; color: #fff;
+      transition: background .2s, transform .2s;
+    }
+    #splash:hover .play-btn { background: #5070bb; transform: scale(1.08); }
+
     /* Pantalla completa */
     .carousel-wrap:fullscreen,
     .carousel-wrap:-webkit-full-screen,
@@ -167,6 +186,12 @@
     <button onclick="toggleFullscreen()">Pantalla completa</button>
   </div>
 </header>
+
+<div id="splash" onclick="startPresentation()">
+  <div class="play-btn">&#9654;</div>
+  <h2>Laminas Grupal 2</h2>
+  <p>Haz clic para comenzar en pantalla completa</p>
+</div>
 
 <div class="stage">
   <div class="carousel-wrap">
@@ -304,13 +329,10 @@
 
   updateUI(); startInterval(); resetProgress();
 
-  // Pantalla completa al cargar (requiere interacción del usuario)
-  document.addEventListener("click", function enterFS() {
-    if (!document.fullscreenElement) {
-      document.querySelector(".carousel-wrap").requestFullscreen().catch(() => {});
-    }
-    document.removeEventListener("click", enterFS);
-  }, { once: true });
+  function startPresentation() {
+    document.getElementById("splash").style.display = "none";
+    document.querySelector(".carousel-wrap").requestFullscreen().catch(() => {});
+  }
 </script>
 </body>
 </html>
