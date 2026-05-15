@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editar orden de láminas</title>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0d0f1a; color: #d0d6e8;
+      font-family: "Segoe UI", sans-serif; min-height: 100vh;
+    }
+    header {
+      background: rgba(13,15,26,.95); border-bottom: 1px solid #1e2235;
+      padding: 0.8rem 1.5rem; display: flex; align-items: center;
+      justify-content: space-between; position: sticky; top: 0; z-index: 50;
+    }
+    header h1 { font-size: 1rem; font-weight: 600; letter-spacing: 2px;
+      text-transform: uppercase; color: #7ea8d8; }
+    .acciones { display: flex; gap: 0.6rem; align-items: center; }
+    button {
+      background: #1a1d2e; border: 1px solid #2e3250; border-radius: 7px;
+      color: #d0d6e8; padding: 0.4rem 1rem; font-size: 0.85rem;
+      cursor: pointer; transition: background .15s;
+    }
+    button:hover { background: #252840; }
+    button.primary { background: #3a4a7a; border-color: #5070bb; }
+    button.primary:hover { background: #4a5a9a; }
+    #msg {
+      font-size: 0.82rem; color: #5a8a5a; opacity: 0;
+      transition: opacity .4s;
+    }
+    #msg.visible { opacity: 1; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px; padding: 1.5rem;
+    }
+    .card {
+      background: #1a1d2e; border: 2px solid #2e3250; border-radius: 10px;
+      overflow: hidden; cursor: grab; user-select: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .card:active { cursor: grabbing; }
+    .card.sortable-chosen { border-color: #5070bb; box-shadow: 0 6px 20px rgba(80,112,187,.4); }
+    .card.sortable-ghost { opacity: 0.35; }
+    .card img {
+      width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block;
+      pointer-events: none;
+    }
+    .card-label {
+      padding: 0.35rem 0.5rem; font-size: 0.72rem; color: #5a6080;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .num {
+      display: inline-block; background: #2e3250; border-radius: 4px;
+      padding: 0 5px; font-size: 0.68rem; color: #7ea8d8; margin-right: 4px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Editar orden de láminas</h1>
+  <div class="acciones">
+    <span id="msg">✓ Orden guardado</span>
+    <a href="/"><button>Ver presentación</button></a>
+    <button class="primary" onclick="guardar()">Guardar orden</button>
+  </div>
+</header>
+
+<div class="grid" id="grid">
+  {% for img in images %}
+  <div class="card" data-img="{{ img }}">
+    <img src="{{ url_for('serve_image', filename=img) }}" alt="{{ img }}" loading="lazy" />
+    <div class="card-label">
+      <span class="num">{{ loop.index }}</span>{{ img }}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+  const grid = document.getElementById("grid");
+
+  Sortable.create(grid, {
+    animation: 180,
+    ghostClass: "sortable-ghost",
+    chosenClass: "sortable-chosen",
+    onEnd: actualizarNumeros
+  });
+
+  function actualizarNumeros() {
+    grid.querySelectorAll(".card").forEach((card, i) => {
+      card.querySelector(".num").textContent = i + 1;
+    });
+  }
+
+  function guardar() {
+    const orden = Array.from(grid.querySelectorAll(".card"))
+                       .map(c => c.dataset.img);
+    fetch("/api/orden", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orden })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        const msg = document.getElementById("msg");
+        msg.classList.add("visible");
+        setTimeout(() => msg.classList.remove("visible"), 2500);
+      }
+    });
+  }
+</script>
+</body>
+</html>
