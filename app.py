@@ -3,7 +3,7 @@ from flask import Flask, render_template, send_from_directory
 
 app = Flask(__name__)
 
-LAMINAS_DIR = r"C:\Users\psalg\OneDrive\Imágenes\làminas grupal 2\làminas grupal 2"
+LAMINAS_DIR = os.path.join(os.path.dirname(__file__), "static", "images")
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 
 
