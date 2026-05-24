@@ -158,6 +158,72 @@
     .sec-alt { background: #eef2f8; }
     .sec-alt section { background: transparent; }
 
+    /* ── CARRUSEL INFORMACIÓN ── */
+    #seccion-info { background: #0d0f1a; }
+    #seccion-info section { background: transparent; }
+    #seccion-info h2 { color: #7ea8d8; border-color: #3a5090; }
+    #seccion-info > section > p { color: #8a91aa; }
+
+    .c-wrap { width: 100%; position: relative; margin-top: 1.5rem; }
+    .c-viewport {
+      width: 100%; aspect-ratio: 4/3; position: relative;
+      overflow: hidden; border-radius: 14px; background: #FAF3E8;
+      box-shadow: 0 10px 40px rgba(0,0,0,.7); cursor: pointer;
+    }
+    .c-slide {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+    }
+    .c-slide img { width: 100%; height: 100%; object-fit: contain; display: block; user-select: none; }
+    .c-slide.current { opacity: 1; pointer-events: auto; z-index: 2; }
+
+    .c-nav {
+      position: absolute; top: 50%; transform: translateY(-50%); z-index: 10;
+      background: rgba(0,0,0,.45); border: none; border-radius: 50%;
+      width: 46px; height: 46px; font-size: 1.4rem; color: #fff;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background .2s;
+    }
+    .c-nav:hover { background: rgba(0,0,0,.75); }
+    .c-nav.prev { left: .7rem; }
+    .c-nav.next { right: .7rem; }
+
+    .c-dots { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; padding: 0 1rem; margin-top: 0.8rem; }
+    .c-dot { width: 8px; height: 8px; border-radius: 50%; background: #2e3250; border: none; cursor: pointer; transition: background .2s, transform .2s; flex-shrink: 0; }
+    .c-dot.active { background: #7ea8d8; transform: scale(1.4); }
+
+    .c-info { display: flex; justify-content: space-between; font-size: 0.8rem; color: #5a6080; padding: 0.4rem 0.2rem; }
+
+    .c-thumbs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; width: 100%; scrollbar-width: thin; scrollbar-color: #2e3250 transparent; margin-top: 0.5rem; }
+    .c-thumb { flex-shrink: 0; width: 64px; height: 48px; object-fit: cover; border-radius: 5px; cursor: pointer; border: 2px solid transparent; opacity: .55; transition: opacity .2s, border-color .2s; }
+    .c-thumb.active { border-color: #7ea8d8; opacity: 1; }
+
+    .c-progress { width: 100%; height: 3px; background: #1a1d2e; border-radius: 2px; overflow: hidden; margin-top: 0.5rem; }
+    .c-bar { height: 100%; background: #7ea8d8; width: 0%; transition: width linear; }
+
+    .c-controls { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-top: 0.8rem; }
+    .c-controls label { font-size: 0.8rem; color: #8a91aa; }
+    .c-controls select, .c-controls button {
+      background: #1a1d2e; border: 1px solid #2e3250; border-radius: 7px;
+      color: #d0d6e8; padding: 0.28rem 0.7rem; font-size: 0.82rem;
+      cursor: pointer; transition: background .15s;
+    }
+    .c-controls select:hover, .c-controls button:hover { background: #252840; }
+    .c-controls button.active { background: #3a4a7a; border-color: #5070bb; }
+
+    /* Pantalla completa carrusel */
+    .c-wrap.is-fullscreen {
+      width: 100vw !important; height: 100vh !important;
+      background: #FAF3E8 !important;
+      display: flex !important; align-items: center !important; justify-content: center !important;
+      position: fixed !important; inset: 0 !important; z-index: 9999 !important;
+    }
+    .c-wrap.is-fullscreen .c-viewport {
+      width: 100vw !important; height: 100vh !important;
+      aspect-ratio: auto !important; border-radius: 0 !important;
+    }
+
     /* ── FOOTER ── */
     footer {
       background: var(--color-dark); color: #6a7090;
@@ -237,6 +303,13 @@
       <ul class="submenu">
         <li><a href="#sec5-sub1">Información</a></li>
         <li><a href="#sec5-sub2">Formulario</a></li>
+      </ul>
+    </li>
+
+    <li class="nav-item">
+      <a href="#seccion-info">Información</a>
+      <ul class="submenu">
+        <li><a href="#seccion-info">Galería de Imágenes</a></li>
       </ul>
     </li>
 
@@ -349,12 +422,163 @@
   </section>
 </div>
 
+<!-- ── SECCIÓN INFORMACIÓN: CARRUSEL ── -->
+<div id="seccion-info" class="sec-alt" style="background:#0d0f1a">
+  <section>
+    <h2>🖼️ Galería de Imágenes</h2>
+    <p>Explora nuestra galería institucional. Usa las flechas, el teclado ← → o haz clic en la imagen para avanzar. Pulsa pantalla completa para una vista inmersiva.</p>
+
+    <div class="c-controls">
+      <label>Velocidad:</label>
+      <select id="cSelSpeed" onchange="cSetSpeed(this.value)">
+        <option value="1500">1.5 s</option>
+        <option value="3000">3 s</option>
+        <option value="5000">5 s</option>
+        <option value="8000">8 s</option>
+        <option value="0" selected>Manual</option>
+      </select>
+      <button id="cBtnPause" onclick="cTogglePause()">Pausar</button>
+      <button onclick="cToggleFullscreen()">⛶ Pantalla completa</button>
+    </div>
+
+    <div class="c-wrap" id="cWrap">
+      <div class="c-viewport" id="cViewport" onclick="cMove(1)">
+        {% for img in images %}
+        <div class="c-slide{% if loop.first %} current{% endif %}" data-index="{{ loop.index0 }}">
+          <img src="{{ url_for('static', filename='images/' + img) }}" alt="{{ img }}" loading="lazy" draggable="false" />
+        </div>
+        {% endfor %}
+      </div>
+      <button class="c-nav prev" onclick="event.stopPropagation();cMove(-1)">&#8249;</button>
+      <button class="c-nav next" onclick="event.stopPropagation();cMove(1)">&#8250;</button>
+    </div>
+
+    <div class="c-progress"><div class="c-bar" id="cBar"></div></div>
+    <div class="c-info">
+      <span id="cImgName"></span>
+      <span id="cCounter"></span>
+    </div>
+    <div class="c-dots" id="cDots"></div>
+    <div class="c-thumbs" id="cThumbs">
+      {% for img in images %}
+      <img class="c-thumb{% if loop.first %} active{% endif %}"
+        src="{{ url_for('static', filename='images/' + img) }}"
+        alt="{{ img }}" loading="lazy" onclick="cGoTo({{ loop.index0 }})" />
+      {% endfor %}
+    </div>
+  </section>
+</div>
+
 <!-- ── FOOTER ── -->
 <footer>
   <p>&copy; 2026 OrgDemo. Todos los derechos reservados.</p>
 </footer>
 
 <script>
+  /* ── CARRUSEL INFORMACIÓN ── */
+  (function() {
+    const imgs    = [{% for img in images %}"{{ img }}"{% if not loop.last %},{% endif %}{% endfor %}];
+    const total   = imgs.length;
+    let cur = 0, paused = false, itvl = null, spd = 0;
+
+    const slides  = Array.from(document.querySelectorAll(".c-slide"));
+    const thumbs  = Array.from(document.querySelectorAll(".c-thumb"));
+    const dotsEl  = document.getElementById("cDots");
+    const ctrEl   = document.getElementById("cCounter");
+    const nameEl  = document.getElementById("cImgName");
+    const barEl   = document.getElementById("cBar");
+
+    slides.forEach((_, i) => {
+      const d = document.createElement("button");
+      d.className = "c-dot" + (i === 0 ? " active" : "");
+      d.setAttribute("aria-label", "Imagen " + (i+1));
+      d.onclick = () => cGoTo(i);
+      dotsEl.appendChild(d);
+    });
+    const dots = Array.from(dotsEl.querySelectorAll(".c-dot"));
+
+    function updateUI() {
+      ctrEl.textContent  = (cur + 1) + " / " + total;
+      nameEl.textContent = imgs[cur];
+      dots.forEach((d, i)  => d.classList.toggle("active", i === cur));
+      thumbs.forEach((t, i) => {
+        t.classList.toggle("active", i === cur);
+        if (i === cur) t.scrollIntoView({ inline: "center", block: "nearest", behavior: "smooth" });
+      });
+    }
+
+    window.cGoTo = function(idx) {
+      if (idx === cur) return;
+      const prev = cur;
+      cur = ((idx % total) + total) % total;
+      slides[prev].classList.remove("current");
+      slides[cur].classList.add("current");
+      updateUI(); resetBar();
+    };
+
+    window.cMove = function(dir) { cGoTo(cur + dir); if (!paused && spd > 0) restartItvl(); };
+
+    function startItvl()   { if (spd === 0) return; clearInterval(itvl); itvl = setInterval(() => cMove(1), spd); }
+    function restartItvl() { clearInterval(itvl); startItvl(); }
+
+    window.cTogglePause = function() {
+      paused = !paused;
+      const btn = document.getElementById("cBtnPause");
+      if (paused) { clearInterval(itvl); barEl.style.transition="none"; btn.textContent="Reanudar"; btn.classList.add("active"); }
+      else        { btn.textContent="Pausar"; btn.classList.remove("active"); startItvl(); resetBar(); }
+    };
+
+    function resetBar() {
+      if (spd === 0 || paused) return;
+      barEl.style.transition = "none"; barEl.style.width = "0%";
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        barEl.style.transition = "width " + spd + "ms linear";
+        barEl.style.width = "100%";
+      }));
+    }
+
+    window.cSetSpeed = function(val) {
+      spd = parseInt(val); clearInterval(itvl);
+      if (spd > 0 && !paused) { startItvl(); resetBar(); }
+      else { barEl.style.transition="none"; barEl.style.width="0%"; }
+    };
+
+    window.cToggleFullscreen = function() {
+      const wrap = document.getElementById("cWrap");
+      if (!document.fullscreenElement) wrap.requestFullscreen();
+      else document.exitFullscreen();
+    };
+
+    document.addEventListener("fullscreenchange", () => {
+      document.getElementById("cWrap").classList.toggle("is-fullscreen", !!document.fullscreenElement);
+    });
+    document.addEventListener("webkitfullscreenchange", () => {
+      document.getElementById("cWrap").classList.toggle("is-fullscreen", !!document.webkitFullscreenElement);
+    });
+
+    // Teclado (activo sólo si el carrusel está visible)
+    document.addEventListener("keydown", e => {
+      const rect = document.getElementById("cWrap").getBoundingClientRect();
+      const visible = rect.top < window.innerHeight && rect.bottom > 0;
+      if (!visible && !document.fullscreenElement) return;
+      if (e.key === "ArrowLeft")  cMove(-1);
+      if (e.key === "ArrowRight") cMove(1);
+      if (e.key === " ") { e.preventDefault(); cTogglePause(); }
+      if (e.key === "f") cToggleFullscreen();
+    });
+
+    // Swipe táctil
+    let tx = 0;
+    document.getElementById("cViewport").addEventListener("touchstart", e => { tx = e.touches[0].clientX; }, { passive: true });
+    document.getElementById("cViewport").addEventListener("touchend",   e => { const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 40) cMove(dx < 0 ? 1 : -1); });
+
+    // Scroll horizontal en miniaturas
+    document.getElementById("cThumbs").addEventListener("wheel", e => { e.currentTarget.scrollLeft += e.deltaY; e.preventDefault(); }, { passive: false });
+
+    updateUI(); startItvl(); resetBar();
+  })();
+
+  /* ── NAVBAR ── */
   // Hamburger móvil
   const hamburger = document.getElementById("hamburger");
   const navMenu   = document.getElementById("navMenu");
