@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Editor — OrgDemo</title>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0d0f1a;
+      --panel:    #14172b;
+      --card:     #1a1d2e;
+      --border:   #2e3250;
+      --accent:   #5b8fd6;
+      --text:     #d0d6e8;
+      --muted:    #8a91aa;
+      --danger:   #c0392b;
+      --success:  #27ae60;
+    }
+
+    body { background: var(--bg); color: var(--text); font-family: "Segoe UI", sans-serif; min-height: 100vh; }
+
+    /* ── TOPBAR ── */
+    #topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--panel); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 1rem;
+      padding: 0.7rem 1.5rem; flex-wrap: wrap;
+    }
+    #topbar a { color: var(--accent); text-decoration: none; font-size: 0.88rem; }
+    #topbar h1 { font-size: 1rem; font-weight: 700; letter-spacing: 1px; flex: 1; }
+    #btn-save {
+      background: var(--success); color: #fff; border: none;
+      padding: 0.45rem 1.2rem; border-radius: 8px; font-size: 0.9rem;
+      font-weight: 700; cursor: pointer; transition: opacity .2s;
+    }
+    #btn-save:hover { opacity: .85; }
+    #save-msg { font-size: 0.82rem; color: var(--muted); min-width: 120px; }
+
+    /* ── TABS ── */
+    #tabs { display: flex; border-bottom: 2px solid var(--border); background: var(--panel); }
+    .tab-btn {
+      padding: 0.7rem 1.6rem; background: none; border: none; color: var(--muted);
+      font-size: 0.9rem; cursor: pointer; border-bottom: 3px solid transparent;
+      margin-bottom: -2px; transition: color .2s, border-color .2s;
+    }
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-pane { display: none; padding: 1.5rem; max-width: 900px; margin: 0 auto; }
+    .tab-pane.active { display: block; }
+
+    /* ── FORM ELEMENTS ── */
+    label { display: block; font-size: 0.78rem; color: var(--muted); margin-bottom: 0.25rem; }
+    input[type="text"], input[type="email"], textarea, select {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 7px; color: var(--text); padding: 0.45rem 0.7rem;
+      font-size: 0.88rem; font-family: inherit; resize: vertical;
+      transition: border-color .2s;
+    }
+    input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+    .field { margin-bottom: 0.9rem; }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 600px) { .row-2 { grid-template-columns: 1fr; } }
+
+    /* ── GENERAL PANEL ── */
+    .panel-box {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.2rem; margin-bottom: 1.2rem;
+    }
+    .panel-box h3 { font-size: 0.95rem; color: var(--accent); margin-bottom: 1rem; }
+
+    /* ── SECTION ITEMS ── */
+    .section-list { display: flex; flex-direction: column; gap: 0.8rem; }
+    .section-item {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+    }
+    .section-header {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.75rem 1rem; cursor: pointer;
+      user-select: none; background: var(--panel);
+      border-bottom: 1px solid var(--border);
+    }
+    .section-header:hover { background: #1e2135; }
+    .drag-handle { color: var(--muted); font-size: 1.1rem; cursor: grab; padding: 0 4px; }
+    .drag-handle:active { cursor: grabbing; }
+    .sec-label { flex: 1; font-weight: 600; font-size: 0.9rem; }
+    .btn-toggle { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; padding: 0 4px; transition: transform .2s; }
+    .btn-toggle.open { transform: rotate(180deg); }
+    .btn-del-sec {
+      background: none; border: 1px solid var(--danger); border-radius: 6px;
+      color: var(--danger); cursor: pointer; font-size: 0.75rem; padding: 0.2rem 0.5rem;
+      transition: background .2s;
+    }
+    .btn-del-sec:hover { background: var(--danger); color: #fff; }
+
+    .section-body { padding: 1rem; display: none; }
+    .section-body.open { display: block; }
+
+    /* ── CARD ITEMS ── */
+    .card-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.8rem; }
+    .card-item {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.75rem; display: flex; gap: 0.5rem; align-items: flex-start;
+    }
+    .card-fields { flex: 1; display: flex; flex-direction: column; gap: 0.4rem; }
+    .card-fields input, .card-fields textarea { font-size: 0.82rem; }
+    .btn-del-card {
+      background: none; border: none; color: var(--danger);
+      cursor: pointer; font-size: 1.1rem; line-height: 1; padding: 2px 4px;
+      flex-shrink: 0;
+    }
+    .row-card-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+    .card-tipo-badge {
+      font-size: 0.72rem; color: var(--muted); background: var(--panel);
+      border: 1px solid var(--border); border-radius: 4px;
+      padding: 0.1rem 0.4rem; display: inline-block; margin-top: 0.2rem;
+    }
+
+    .btn-add-card {
+      background: none; border: 1px dashed var(--border); border-radius: 7px;
+      color: var(--muted); cursor: pointer; font-size: 0.82rem;
+      padding: 0.4rem 1rem; margin-top: 0.5rem; width: 100%;
+      transition: border-color .2s, color .2s;
+    }
+    .btn-add-card:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── ADD SECTION ── */
+    #btn-add-sec {
+      background: none; border: 2px dashed var(--border); border-radius: 10px;
+      color: var(--muted); cursor: pointer; padding: 0.8rem;
+      width: 100%; font-size: 0.9rem; margin-top: 0.5rem;
+      transition: border-color .2s, color .2s;
+    }
+    #btn-add-sec:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── IMAGES TAB ── */
+    .img-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 0.8rem; margin-top: 1rem;
+    }
+    .img-item {
+      position: relative; border-radius: 8px; overflow: hidden;
+      background: var(--card); border: 2px solid var(--border);
+      cursor: grab; transition: border-color .2s;
+    }
+    .img-item:hover { border-color: var(--accent); }
+    .img-item img { width: 100%; aspect-ratio: 4/3; object-fit: cover; display: block; }
+    .img-item .img-name { font-size: 0.65rem; color: var(--muted); padding: 0.25rem 0.4rem; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+    .img-del {
+      position: absolute; top: 4px; right: 4px;
+      background: rgba(192,57,43,.85); color: #fff; border: none;
+      border-radius: 50%; width: 22px; height: 22px; font-size: 0.75rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity .2s;
+    }
+    .img-item:hover .img-del { opacity: 1; }
+
+    .img-hint { font-size: 0.8rem; color: var(--muted); margin-top: 0.5rem; }
+    #btn-save-imgs {
+      background: var(--success); color: #fff; border: none;
+      padding: 0.5rem 1.3rem; border-radius: 8px; font-size: 0.88rem;
+      font-weight: 700; cursor: pointer; margin-top: 1rem;
+    }
+    #btn-save-imgs:hover { opacity: .85; }
+  </style>
+</head>
+<body>
+
+<!-- ── TOPBAR ── -->
+<div id="topbar">
+  <a href="/">← Ver sitio</a>
+  <h1>⚙ Editor de Contenido</h1>
+  <span id="save-msg"></span>
+  <button id="btn-save" onclick="guardarContenido()">💾 Guardar todo</button>
+</div>
+
+<!-- ── TABS ── -->
+<div id="tabs">
+  <button class="tab-btn active" onclick="showTab('contenido', this)">📝 Contenido</button>
+  <button class="tab-btn" onclick="showTab('imagenes', this)">🖼 Imágenes</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     TAB: CONTENIDO
+════════════════════════════════════════════════════ -->
+<div id="tab-contenido" class="tab-pane active">
+
+  <!-- General -->
+  <div class="panel-box">
+    <h3>⚙ General</h3>
+    <div class="row-2">
+      <div class="field">
+        <label>Logo / nombre corto</label>
+        <input type="text" id="f-logo" value="{{ contenido.logo }}">
+      </div>
+      <div class="field">
+        <label>Título del sitio (pestaña del navegador)</label>
+        <input type="text" id="f-titulo-sitio" value="{{ contenido.titulo_sitio }}">
+      </div>
+    </div>
+    <div class="field">
+      <label>Texto de pie de página (footer)</label>
+      <input type="text" id="f-footer" value="{{ contenido.footer }}">
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div class="panel-box">
+    <h3>🏠 Pantalla de inicio (Hero)</h3>
+    <div class="field">
+      <label>Título principal</label>
+      <input type="text" id="f-hero-titulo" value="{{ contenido.hero_titulo }}">
+    </div>
+    <div class="field">
+      <label>Subtítulo / descripción</label>
+      <textarea id="f-hero-texto" rows="3">{{ contenido.hero_texto }}</textarea>
+    </div>
+    <div class="field">
+      <label>Texto del botón</label>
+      <input type="text" id="f-hero-boton" value="{{ contenido.hero_boton }}">
+    </div>
+  </div>
+
+  <!-- Secciones -->
+  <div class="panel-box">
+    <h3>📑 Secciones</h3>
+    <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem">
+      Arrastra ⠿ para reordenar secciones y tarjetas. Haz clic en el encabezado para expandir/colapsar.
+    </p>
+
+    <div class="section-list" id="section-list">
+
+      {% for sec in contenido.secciones %}
+      <div class="section-item" data-id="{{ sec.id }}">
+        <div class="section-header" onclick="toggleSection(this)">
+          <span class="drag-handle" title="Arrastrar">⠿</span>
+          <span class="sec-label">{{ sec.menu_titulo }}</span>
+          <button class="btn-del-sec" onclick="event.stopPropagation();delSection(this)" title="Eliminar sección">🗑 Eliminar</button>
+          <button class="btn-toggle" title="Expandir/colapsar">▼</button>
+        </div>
+        <div class="section-body">
+          <div class="row-2">
+            <div class="field">
+              <label>Título en el menú</label>
+              <input type="text" class="f-menu-titulo" value="{{ sec.menu_titulo }}">
+            </div>
+            <div class="field">
+              <label>Título en la sección</label>
+              <input type="text" class="f-titulo" value="{{ sec.titulo }}">
+            </div>
+          </div>
+          <div class="field">
+            <label>Descripción de la sección</label>
+            <textarea class="f-descripcion" rows="3">{{ sec.descripcion }}</textarea>
+          </div>
+          <div class="field">
+            <label>
+              <input type="checkbox" class="f-fondo-alt" {% if sec.fondo_alt %}checked{% endif %} style="width:auto;margin-right:0.4rem">
+              Fondo gris alternativo
+            </label>
+          </div>
+
+          <!-- Tarjetas -->
+          <div style="font-size:0.82rem;color:var(--muted);margin-bottom:0.4rem">Tarjetas (arrastra para reordenar):</div>
+          <div class="card-list" data-sec="{{ sec.id }}">
+            {% for card in sec.cards %}
+            <div class="card-item" data-id="{{ card.id }}" data-tipo="{{ card.tipo if card.tipo is defined else 'texto' }}">
+              <span class="drag-handle" title="Arrastrar">⠿</span>
+              <div class="card-fields">
+                <div class="row-card-meta">
+                  <input type="text" class="f-card-menu-titulo" placeholder="Título en submenú" value="{{ card.menu_titulo }}">
+                  <input type="text" class="f-card-titulo" placeholder="Título de la tarjeta" value="{{ card.titulo }}">
+                </div>
+                <textarea class="f-card-texto" rows="3" placeholder="Texto de la tarjeta">{{ card.texto }}</textarea>
+                {% if card.tipo is defined and card.tipo == 'formulario' %}
+                <span class="card-tipo-badge">📋 tipo: formulario — el formulario HTML se genera automáticamente</span>
+                {% endif %}
+              </div>
+              <button class="btn-del-card" onclick="delCard(this)" title="Eliminar tarjeta">✕</button>
+            </div>
+            {% endfor %}
+          </div>
+          <button class="btn-add-card" onclick="addCard(this)">＋ Agregar tarjeta</button>
+        </div>
+      </div>
+      {% endfor %}
+
+    </div><!-- /section-list -->
+
+    <button id="btn-add-sec" onclick="addSection()">＋ Agregar sección</button>
+  </div>
+
+</div><!-- /tab-contenido -->
+
+
+<!-- ══════════════════════════════════════════════════
+     TAB: IMÁGENES
+════════════════════════════════════════════════════ -->
+<div id="tab-imagenes" class="tab-pane">
+  <div class="panel-box">
+    <h3>🖼 Galería de imágenes</h3>
+    <p class="img-hint">Arrastra para reordenar. Pasa el cursor sobre una imagen y haz clic en ✕ para eliminarla.</p>
+    <div class="img-grid" id="img-grid">
+      {% for img in images %}
+      <div class="img-item" data-name="{{ img }}">
+        <img src="{{ url_for('static', filename='images/' + img) }}" alt="{{ img }}" loading="lazy">
+        <div class="img-name">{{ img }}</div>
+        <button class="img-del" onclick="delImagen(this, '{{ img }}')" title="Eliminar">✕</button>
+      </div>
+      {% endfor %}
+    </div>
+    <button id="btn-save-imgs" onclick="guardarOrdenImagenes()">💾 Guardar orden de imágenes</button>
+  </div>
+</div><!-- /tab-imagenes -->
+
+
+<script>
+  /* ── TABS ── */
+  function showTab(name, btn) {
+    document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.getElementById("tab-" + name).classList.add("active");
+    btn.classList.add("active");
+  }
+
+  /* Si llegan con #tab-imagenes en la URL */
+  if (location.hash === "#tab-imagenes") {
+    showTab("imagenes", document.querySelectorAll(".tab-btn")[1]);
+  }
+
+  /* ── ACCORDION ── */
+  function toggleSection(header) {
+    const body = header.nextElementSibling;
+    const btn  = header.querySelector(".btn-toggle");
+    body.classList.toggle("open");
+    btn.classList.toggle("open");
+  }
+
+  /* ── SORTABLE SECCIONES ── */
+  Sortable.create(document.getElementById("section-list"), {
+    handle: ".section-item > .section-header > .drag-handle",
+    animation: 150
+  });
+
+  /* ── SORTABLE TARJETAS ── */
+  document.querySelectorAll(".card-list").forEach(list => {
+    Sortable.create(list, {
+      handle: ".drag-handle",
+      animation: 150
+    });
+  });
+
+  /* ── SORTABLE IMÁGENES ── */
+  Sortable.create(document.getElementById("img-grid"), { animation: 150 });
+
+  /* ── AGREGAR TARJETA ── */
+  let cardCounter = 1000;
+  function addCard(btn) {
+    const cardList = btn.previousElementSibling;
+    const secId    = cardList.dataset.sec;
+    const id       = secId + "-card-" + (++cardCounter);
+    const div = document.createElement("div");
+    div.className = "card-item";
+    div.dataset.id  = id;
+    div.dataset.tipo = "texto";
+    div.innerHTML = `
+      <span class="drag-handle" title="Arrastrar">⠿</span>
+      <div class="card-fields">
+        <div class="row-card-meta">
+          <input type="text" class="f-card-menu-titulo" placeholder="Título en submenú" value="">
+          <input type="text" class="f-card-titulo" placeholder="Título de la tarjeta" value="">
+        </div>
+        <textarea class="f-card-texto" rows="3" placeholder="Texto de la tarjeta"></textarea>
+      </div>
+      <button class="btn-del-card" onclick="delCard(this)" title="Eliminar tarjeta">✕</button>`;
+    cardList.appendChild(div);
+    Sortable.create(cardList, { handle: ".drag-handle", animation: 150 });
+  }
+
+  /* ── ELIMINAR TARJETA ── */
+  function delCard(btn) {
+    if (!confirm("¿Eliminar esta tarjeta?")) return;
+    btn.closest(".card-item").remove();
+  }
+
+  /* ── AGREGAR SECCIÓN ── */
+  let secCounter = 1000;
+  function addSection() {
+    const id = "seccion-nueva-" + (++secCounter);
+    const div = document.createElement("div");
+    div.className = "section-item";
+    div.dataset.id = id;
+    div.innerHTML = `
+      <div class="section-header" onclick="toggleSection(this)">
+        <span class="drag-handle" title="Arrastrar">⠿</span>
+        <span class="sec-label">Nueva sección</span>
+        <button class="btn-del-sec" onclick="event.stopPropagation();delSection(this)">🗑 Eliminar</button>
+        <button class="btn-toggle">▼</button>
+      </div>
+      <div class="section-body open">
+        <div class="row-2">
+          <div class="field">
+            <label>Título en el menú</label>
+            <input type="text" class="f-menu-titulo" value="Nueva sección">
+          </div>
+          <div class="field">
+            <label>Título en la sección</label>
+            <input type="text" class="f-titulo" value="Nueva sección">
+          </div>
+        </div>
+        <div class="field">
+          <label>Descripción de la sección</label>
+          <textarea class="f-descripcion" rows="3"></textarea>
+        </div>
+        <div class="field">
+          <label>
+            <input type="checkbox" class="f-fondo-alt" style="width:auto;margin-right:0.4rem">
+            Fondo gris alternativo
+          </label>
+        </div>
+        <div style="font-size:0.82rem;color:var(--muted);margin-bottom:0.4rem">Tarjetas:</div>
+        <div class="card-list" data-sec="${id}"></div>
+        <button class="btn-add-card" onclick="addCard(this)">＋ Agregar tarjeta</button>
+      </div>`;
+    document.getElementById("section-list").appendChild(div);
+    div.querySelector(".btn-toggle").classList.add("open");
+  }
+
+  /* ── ELIMINAR SECCIÓN ── */
+  function delSection(btn) {
+    if (!confirm("¿Eliminar esta sección completa con todas sus tarjetas?")) return;
+    btn.closest(".section-item").remove();
+  }
+
+  /* ── RECOLECTAR DATOS ── */
+  function collectData() {
+    const data = {
+      logo:          document.getElementById("f-logo").value.trim(),
+      titulo_sitio:  document.getElementById("f-titulo-sitio").value.trim(),
+      hero_titulo:   document.getElementById("f-hero-titulo").value.trim(),
+      hero_texto:    document.getElementById("f-hero-texto").value.trim(),
+      hero_boton:    document.getElementById("f-hero-boton").value.trim(),
+      footer:        document.getElementById("f-footer").value.trim(),
+      secciones:     []
+    };
+
+    document.querySelectorAll("#section-list .section-item").forEach(secEl => {
+      const sec = {
+        id:          secEl.dataset.id,
+        menu_titulo: secEl.querySelector(".f-menu-titulo").value.trim(),
+        titulo:      secEl.querySelector(".f-titulo").value.trim(),
+        descripcion: secEl.querySelector(".f-descripcion").value.trim(),
+        fondo_alt:   secEl.querySelector(".f-fondo-alt").checked,
+        cards:       []
+      };
+
+      secEl.querySelectorAll(".card-item").forEach(cardEl => {
+        const card = {
+          id:          cardEl.dataset.id,
+          menu_titulo: cardEl.querySelector(".f-card-menu-titulo").value.trim(),
+          titulo:      cardEl.querySelector(".f-card-titulo").value.trim(),
+          texto:       cardEl.querySelector(".f-card-texto").value.trim()
+        };
+        if (cardEl.dataset.tipo && cardEl.dataset.tipo !== "texto") {
+          card.tipo = cardEl.dataset.tipo;
+        }
+        sec.cards.push(card);
+      });
+
+      data.secciones.push(sec);
+    });
+
+    return data;
+  }
+
+  /* ── GUARDAR CONTENIDO ── */
+  async function guardarContenido() {
+    const btn = document.getElementById("btn-save");
+    const msg = document.getElementById("save-msg");
+    btn.disabled = true;
+    msg.textContent = "Guardando…";
+    try {
+      const res = await fetch("/guardar-contenido", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(collectData())
+      });
+      const json = await res.json();
+      msg.style.color = json.ok ? "var(--success)" : "var(--danger)";
+      msg.textContent = json.ok ? "✔ Guardado correctamente" : "✖ Error al guardar";
+    } catch (e) {
+      msg.style.color = "var(--danger)";
+      msg.textContent = "✖ Error de conexión";
+    } finally {
+      btn.disabled = false;
+      setTimeout(() => { msg.textContent = ""; msg.style.color = ""; }, 3000);
+    }
+  }
+
+  /* ── ELIMINAR IMAGEN ── */
+  async function delImagen(btn, nombre) {
+    if (!confirm(`¿Eliminar la imagen "${nombre}"? Esta acción no se puede deshacer.`)) return;
+    try {
+      const res = await fetch("/eliminar-imagen", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nombre })
+      });
+      const json = await res.json();
+      if (json.ok) btn.closest(".img-item").remove();
+      else alert("Error al eliminar la imagen.");
+    } catch (e) {
+      alert("Error de conexión.");
+    }
+  }
+
+  /* ── GUARDAR ORDEN IMÁGENES ── */
+  async function guardarOrdenImagenes() {
+    const orden = Array.from(document.querySelectorAll("#img-grid .img-item")).map(el => el.dataset.name);
+    try {
+      const res = await fetch("/guardar-orden-imagenes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orden })
+      });
+      const json = await res.json();
+      alert(json.ok ? "✔ Orden de imágenes guardado." : "✖ Error al guardar el orden.");
+    } catch (e) {
+      alert("Error de conexión.");
+    }
+  }
+
+  /* Ctrl+S para guardar rápido */
+  document.addEventListener("keydown", e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+      e.preventDefault();
+      guardarContenido();
+    }
+  });
+</script>
+</body>
+</html>

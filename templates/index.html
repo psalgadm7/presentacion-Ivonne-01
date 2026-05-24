@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Organización Demo</title>
+  <title>Organizaci�n Demo</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -25,7 +25,7 @@
       color: var(--color-text);
     }
 
-    /* ── NAVBAR ── */
+    /* -- NAVBAR -- */
     nav {
       position: fixed; top: 0; left: 0; right: 0;
       height: var(--nav-h); z-index: 100;
@@ -54,13 +54,13 @@
       white-space: nowrap;
     }
     .nav-item > a::after {
-      content: "▾"; font-size: 0.7rem; opacity: .6;
+      content: "?"; font-size: 0.7rem; opacity: .6;
     }
     .nav-item:hover > a {
       color: #fff; background: rgba(255,255,255,.07);
     }
 
-    /* Submenú */
+    /* Submen� */
     .submenu {
       position: absolute; top: var(--nav-h); left: 0;
       background: #252840; min-width: 200px;
@@ -87,7 +87,7 @@
       border-radius: 0 0 8px 8px;
     }
 
-    /* Hamburger (móvil) */
+    /* Hamburger (m�vil) */
     .hamburger {
       display: none; flex-direction: column; gap: 5px;
       cursor: pointer; background: none; border: none; padding: 6px;
@@ -101,7 +101,7 @@
     .hamburger.open span:nth-child(2) { opacity: 0; }
     .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
 
-    /* ── HERO ── */
+    /* -- HERO -- */
     #inicio {
       min-height: 100vh;
       display: flex; align-items: center; justify-content: center;
@@ -120,7 +120,7 @@
     }
     .btn-hero:hover { background: var(--color-primary); }
 
-    /* ── SECCIONES GENERALES ── */
+    /* -- SECCIONES GENERALES -- */
     section {
       padding: calc(var(--nav-h) + 3rem) 2rem 4rem;
       max-width: 960px; margin: 0 auto;
@@ -158,7 +158,7 @@
     .sec-alt { background: #eef2f8; }
     .sec-alt section { background: transparent; }
 
-    /* ── CARRUSEL INFORMACIÓN ── */
+    /* -- CARRUSEL INFORMACI�N -- */
     #seccion-info { background: #0d0f1a; }
     #seccion-info section { background: transparent; }
     #seccion-info h2 { color: #7ea8d8; border-color: #3a5090; }
@@ -224,14 +224,14 @@
       aspect-ratio: auto !important; border-radius: 0 !important;
     }
 
-    /* ── FOOTER ── */
+    /* -- FOOTER -- */
     footer {
       background: var(--color-dark); color: #6a7090;
       text-align: center; padding: 1.5rem;
       font-size: 0.82rem;
     }
 
-    /* ── RESPONSIVE MÓVIL ── */
+    /* -- RESPONSIVE M�VIL -- */
     @media (max-width: 768px) {
       .hamburger { display: flex; margin-left: auto; }
       .nav-menu {
@@ -252,181 +252,91 @@
       .nav-item.open .submenu { display: block; }
       .nav-item > a::after { margin-left: auto; }
     }
+
+    /* �tem editor en navbar */
+    .nav-editor > a { color: #7ea8d8 !important; }
+    .nav-editor > a::after { display: none; }
   </style>
 </head>
 <body>
 
-<!-- ── NAVBAR ── -->
+<!-- -- NAVBAR -- -->
 <nav>
-  <a class="nav-logo" href="#inicio">OrgDemo</a>
+  <a class="nav-logo" href="#inicio">{{ contenido.logo }}</a>
 
-  <button class="hamburger" id="hamburger" aria-label="Menú">
+  <button class="hamburger" id="hamburger" aria-label="Men�">
     <span></span><span></span><span></span>
   </button>
 
   <ul class="nav-menu" id="navMenu">
 
+    {% for sec in contenido.secciones %}
     <li class="nav-item">
-      <a href="#seccion1">Quiénes Somos</a>
+      <a href="#{{ sec.id }}">{{ sec.menu_titulo }}</a>
       <ul class="submenu">
-        <li><a href="#sec1-sub1">Misión</a></li>
-        <li><a href="#sec1-sub2">Visión</a></li>
+        {% for card in sec.cards %}
+        <li><a href="#{{ card.id }}">{{ card.menu_titulo }}</a></li>
+        {% endfor %}
+      </ul>
+    </li>
+    {% endfor %}
+
+    <li class="nav-item">
+      <a href="#seccion-info">Informaci�n</a>
+      <ul class="submenu">
+        <li><a href="#seccion-info">Galer�a de Im�genes</a></li>
       </ul>
     </li>
 
-    <li class="nav-item">
-      <a href="#seccion2">Servicios</a>
+    <li class="nav-item nav-editor">
+      <a href="/editar">? Editor</a>
       <ul class="submenu">
-        <li><a href="#sec2-sub1">Servicio Principal</a></li>
-        <li><a href="#sec2-sub2">Servicio Complementario</a></li>
-      </ul>
-    </li>
-
-    <li class="nav-item">
-      <a href="#seccion3">Valores</a>
-      <ul class="submenu">
-        <li><a href="#sec3-sub1">Valores Institucionales</a></li>
-        <li><a href="#sec3-sub2">Código de Ética</a></li>
-      </ul>
-    </li>
-
-    <li class="nav-item">
-      <a href="#seccion4">Noticias</a>
-      <ul class="submenu">
-        <li><a href="#sec4-sub1">Últimas Noticias</a></li>
-        <li><a href="#sec4-sub2">Eventos</a></li>
-      </ul>
-    </li>
-
-    <li class="nav-item">
-      <a href="#seccion5">Contacto</a>
-      <ul class="submenu">
-        <li><a href="#sec5-sub1">Información</a></li>
-        <li><a href="#sec5-sub2">Formulario</a></li>
-      </ul>
-    </li>
-
-    <li class="nav-item">
-      <a href="#seccion-info">Información</a>
-      <ul class="submenu">
-        <li><a href="#seccion-info">Galería de Imágenes</a></li>
+        <li><a href="/editar">Editar contenido</a></li>
+        <li><a href="/editar#tab-imagenes">Gestionar im�genes</a></li>
       </ul>
     </li>
 
   </ul>
 </nav>
 
-<!-- ── HERO ── -->
+<!-- -- HERO -- -->
 <div id="inicio">
-  <h1>Bienvenidos a OrgDemo</h1>
-  <p>Somos una organización comprometida con el desarrollo sostenible, la innovación y el bienestar de las comunidades que servimos. Conoce nuestra misión, visión y los servicios que ofrecemos.</p>
-  <a class="btn-hero" href="#seccion1">Conocer más ↓</a>
+  <h1>{{ contenido.hero_titulo }}</h1>
+  <p>{{ contenido.hero_texto }}</p>
+  <a class="btn-hero" href="#{{ contenido.secciones[0].id }}">{{ contenido.hero_boton }}</a>
 </div>
 
-<!-- ── SECCIÓN 1: QUIÉNES SOMOS ── -->
-<div id="seccion1">
+<!-- -- SECCIONES -- -->
+{% for sec in contenido.secciones %}
+<div id="{{ sec.id }}"{% if sec.fondo_alt %} class="sec-alt"{% endif %}>
   <section>
-    <h2>Quiénes Somos</h2>
-    <p>Somos una institución con más de 20 años de trayectoria, dedicada a brindar soluciones integrales con enfoque humano, ético y sostenible. Nuestro equipo multidisciplinario trabaja cada día para generar un impacto positivo en la sociedad.</p>
+    <h2>{{ sec.titulo }}</h2>
+    <p>{{ sec.descripcion }}</p>
     <div class="subsecciones">
-      <div class="card" id="sec1-sub1">
-        <h3>🎯 Misión</h3>
-        <p>Contribuir al desarrollo integral de las personas y organizaciones mediante servicios de alta calidad, basados en principios de transparencia, innovación y responsabilidad social, generando valor sostenible para la comunidad.</p>
-      </div>
-      <div class="card" id="sec1-sub2">
-        <h3>🔭 Visión</h3>
-        <p>Ser reconocidos para el año 2030 como la organización líder en nuestra región, referente en buenas prácticas institucionales, innovación tecnológica y compromiso con el bienestar humano y medioambiental.</p>
-      </div>
-    </div>
-  </section>
-</div>
-
-<!-- ── SECCIÓN 2: SERVICIOS ── -->
-<div id="seccion2" class="sec-alt">
-  <section>
-    <h2>Servicios</h2>
-    <p>Ofrecemos una amplia cartera de servicios diseñados para atender las necesidades específicas de cada cliente, combinando experiencia profesional con las herramientas tecnológicas más actuales.</p>
-    <div class="subsecciones">
-      <div class="card" id="sec2-sub1">
-        <h3>⚙️ Servicio Principal</h3>
-        <p>Asesoría y acompañamiento especializado en procesos de gestión organizacional, optimización de recursos y planificación estratégica para instituciones públicas y privadas.</p>
-      </div>
-      <div class="card" id="sec2-sub2">
-        <h3>🔧 Servicio Complementario</h3>
-        <p>Capacitación, formación continua y talleres prácticos orientados al fortalecimiento de competencias del capital humano en áreas técnicas y de liderazgo.</p>
-      </div>
-    </div>
-  </section>
-</div>
-
-<!-- ── SECCIÓN 3: VALORES ── -->
-<div id="seccion3">
-  <section>
-    <h2>Valores</h2>
-    <p>Nuestro actuar está guiado por un conjunto de principios que definen nuestra identidad institucional y orientan cada decisión que tomamos, tanto hacia nuestros colaboradores como hacia la comunidad.</p>
-    <div class="subsecciones">
-      <div class="card" id="sec3-sub1">
-        <h3>🏛️ Valores Institucionales</h3>
-        <p><strong>Integridad</strong> · <strong>Respeto</strong> · <strong>Compromiso</strong> · <strong>Excelencia</strong> · <strong>Innovación</strong>.<br><br>Estos pilares guían nuestra cultura organizacional y son el estándar con el que medimos nuestras acciones y resultados.</p>
-      </div>
-      <div class="card" id="sec3-sub2">
-        <h3>📋 Código de Ética</h3>
-        <p>Contamos con un código de ética institucional que establece las normas de conducta para todos nuestros colaboradores, garantizando transparencia, equidad y respeto en cada interacción interna y externa.</p>
-      </div>
-    </div>
-  </section>
-</div>
-
-<!-- ── SECCIÓN 4: NOTICIAS ── -->
-<div id="seccion4" class="sec-alt">
-  <section>
-    <h2>Noticias</h2>
-    <p>Mantente informado sobre las últimas novedades, logros institucionales y eventos de nuestra organización. Aquí encontrarás contenido actualizado de forma periódica.</p>
-    <div class="subsecciones">
-      <div class="card" id="sec4-sub1">
-        <h3>📰 Últimas Noticias</h3>
-        <p><strong>Mayo 2026 —</strong> Lanzamiento de nuestro nuevo portal de atención en línea, disponible las 24 horas para todos nuestros usuarios y colaboradores a nivel nacional.</p>
-      </div>
-      <div class="card" id="sec4-sub2">
-        <h3>📅 Eventos</h3>
-        <p><strong>Próximo evento:</strong> Seminario Internacional de Gestión Organizacional — 15 de junio de 2026. Inscripciones abiertas. Cupos limitados. Modalidad presencial y en línea.</p>
-      </div>
-    </div>
-  </section>
-</div>
-
-<!-- ── SECCIÓN 5: CONTACTO ── -->
-<div id="seccion5">
-  <section>
-    <h2>Contacto</h2>
-    <p>Estamos disponibles para atender tus consultas, sugerencias o solicitudes. No dudes en comunicarte con nosotros a través de cualquiera de nuestros canales.</p>
-    <div class="subsecciones">
-      <div class="card" id="sec5-sub1">
-        <h3>📍 Información de Contacto</h3>
-        <p>
-          📌 <strong>Dirección:</strong> Av. Principal 1234, Ciudad<br>
-          📞 <strong>Teléfono:</strong> +56 2 2345 6789<br>
-          ✉️ <strong>Email:</strong> contacto@orgdemo.cl<br>
-          🕐 <strong>Horario:</strong> Lun–Vie 9:00 – 18:00
-        </p>
-      </div>
-      <div class="card" id="sec5-sub2">
-        <h3>💬 Formulario de Contacto</h3>
-        <p style="margin-bottom:0.8rem">Envíanos tu mensaje y te responderemos a la brevedad.</p>
+      {% for card in sec.cards %}
+      <div class="card" id="{{ card.id }}">
+        <h3>{{ card.titulo }}</h3>
+        {% if card.tipo is defined and card.tipo == "formulario" %}
+        <p style="margin-bottom:0.8rem">{{ card.texto }}</p>
         <input type="text" placeholder="Tu nombre" style="width:100%;padding:0.5rem;margin-bottom:0.5rem;border:1px solid #ccc;border-radius:6px;font-size:0.85rem">
         <input type="email" placeholder="Tu correo" style="width:100%;padding:0.5rem;margin-bottom:0.5rem;border:1px solid #ccc;border-radius:6px;font-size:0.85rem">
         <textarea placeholder="Tu mensaje" rows="3" style="width:100%;padding:0.5rem;margin-bottom:0.5rem;border:1px solid #ccc;border-radius:6px;font-size:0.85rem;resize:vertical"></textarea>
         <button style="background:#3a5fa0;color:#fff;border:none;padding:0.5rem 1.2rem;border-radius:6px;cursor:pointer;font-size:0.85rem">Enviar</button>
+        {% else %}
+        <p>{{ card.texto | replace('\n\n', '<br><br>') | replace('\n', '<br>') | safe }}</p>
+        {% endif %}
       </div>
+      {% endfor %}
     </div>
   </section>
 </div>
+{% endfor %}
 
-<!-- ── SECCIÓN INFORMACIÓN: CARRUSEL ── -->
+<!-- -- SECCI�N INFORMACI�N: CARRUSEL -- -->
 <div id="seccion-info" class="sec-alt" style="background:#0d0f1a">
   <section>
-    <h2>🖼️ Galería de Imágenes</h2>
-    <p>Explora nuestra galería institucional. Usa las flechas, el teclado ← → o haz clic en la imagen para avanzar. Pulsa pantalla completa para una vista inmersiva.</p>
+    <h2>??? Galer�a de Im�genes</h2>
+    <p>Explora nuestra galer�a institucional. Usa las flechas, el teclado ? ? o haz clic en la imagen para avanzar. Pulsa pantalla completa para una vista inmersiva.</p>
 
     <div class="c-controls">
       <label>Velocidad:</label>
@@ -438,7 +348,7 @@
         <option value="0" selected>Manual</option>
       </select>
       <button id="cBtnPause" onclick="cTogglePause()">Pausar</button>
-      <button onclick="cToggleFullscreen()">⛶ Pantalla completa</button>
+      <button onclick="cToggleFullscreen()">? Pantalla completa</button>
     </div>
 
     <div class="c-wrap" id="cWrap">
@@ -469,13 +379,13 @@
   </section>
 </div>
 
-<!-- ── FOOTER ── -->
+<!-- -- FOOTER -- -->
 <footer>
-  <p>&copy; 2026 OrgDemo. Todos los derechos reservados.</p>
+  <p>{{ contenido.footer }}</p>
 </footer>
 
 <script>
-  /* ── CARRUSEL INFORMACIÓN ── */
+  /* -- CARRUSEL INFORMACI�N -- */
   (function() {
     const imgs    = [{% for img in images %}"{{ img }}"{% if not loop.last %},{% endif %}{% endfor %}];
     const total   = imgs.length;
@@ -556,7 +466,6 @@
       document.getElementById("cWrap").classList.toggle("is-fullscreen", !!document.webkitFullscreenElement);
     });
 
-    // Teclado (activo sólo si el carrusel está visible)
     document.addEventListener("keydown", e => {
       const rect = document.getElementById("cWrap").getBoundingClientRect();
       const visible = rect.top < window.innerHeight && rect.bottom > 0;
@@ -567,19 +476,15 @@
       if (e.key === "f") cToggleFullscreen();
     });
 
-    // Swipe táctil
     let tx = 0;
     document.getElementById("cViewport").addEventListener("touchstart", e => { tx = e.touches[0].clientX; }, { passive: true });
     document.getElementById("cViewport").addEventListener("touchend",   e => { const dx = e.changedTouches[0].clientX - tx; if (Math.abs(dx) > 40) cMove(dx < 0 ? 1 : -1); });
-
-    // Scroll horizontal en miniaturas
     document.getElementById("cThumbs").addEventListener("wheel", e => { e.currentTarget.scrollLeft += e.deltaY; e.preventDefault(); }, { passive: false });
 
     updateUI(); startItvl(); resetBar();
   })();
 
-  /* ── NAVBAR ── */
-  // Hamburger móvil
+  /* -- NAVBAR -- */
   const hamburger = document.getElementById("hamburger");
   const navMenu   = document.getElementById("navMenu");
 
@@ -588,7 +493,6 @@
     navMenu.classList.toggle("open");
   });
 
-  // Submenús en móvil (tap)
   document.querySelectorAll(".nav-item > a").forEach(link => {
     link.addEventListener("click", e => {
       if (window.innerWidth <= 768) {
@@ -606,7 +510,6 @@
     });
   });
 
-  // Cerrar menú al hacer clic en un enlace del submenú (móvil)
   document.querySelectorAll(".submenu a").forEach(a => {
     a.addEventListener("click", () => {
       navMenu.classList.remove("open");

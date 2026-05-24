@@ -1,0 +1,116 @@
+{
+  "logo": "OrgDemo",
+  "titulo_sitio": "Organización Demo",
+  "hero_titulo": "Bienvenidos a OrgDemo",
+  "hero_texto": "Somos una organización comprometida con el desarrollo sostenible, la innovación y el bienestar de las comunidades que servimos. Conoce nuestra misión, visión y los servicios que ofrecemos.",
+  "hero_boton": "Conocer más ↓",
+  "secciones": [
+    {
+      "id": "seccion1",
+      "menu_titulo": "Quiénes Somos",
+      "titulo": "Quiénes Somos",
+      "descripcion": "Somos una institución con más de 20 años de trayectoria, dedicada a brindar soluciones integrales con enfoque humano, ético y sostenible. Nuestro equipo multidisciplinario trabaja cada día para generar un impacto positivo en la sociedad.",
+      "fondo_alt": false,
+      "cards": [
+        {
+          "id": "sec1-sub1",
+          "menu_titulo": "Misión",
+          "titulo": "🎯 Misión",
+          "texto": "Contribuir al desarrollo integral de las personas y organizaciones mediante servicios de alta calidad, basados en principios de transparencia, innovación y responsabilidad social, generando valor sostenible para la comunidad."
+        },
+        {
+          "id": "sec1-sub2",
+          "menu_titulo": "Visión",
+          "titulo": "🔭 Visión",
+          "texto": "Ser reconocidos para el año 2030 como la organización líder en nuestra región, referente en buenas prácticas institucionales, innovación tecnológica y compromiso con el bienestar humano y medioambiental."
+        }
+      ]
+    },
+    {
+      "id": "seccion2",
+      "menu_titulo": "Servicios",
+      "titulo": "Servicios",
+      "descripcion": "Ofrecemos una amplia cartera de servicios diseñados para atender las necesidades específicas de cada cliente, combinando experiencia profesional con las herramientas tecnológicas más actuales.",
+      "fondo_alt": true,
+      "cards": [
+        {
+          "id": "sec2-sub1",
+          "menu_titulo": "Servicio Principal",
+          "titulo": "⚙️ Servicio Principal",
+          "texto": "Asesoría y acompañamiento especializado en procesos de gestión organizacional, optimización de recursos y planificación estratégica para instituciones públicas y privadas."
+        },
+        {
+          "id": "sec2-sub2",
+          "menu_titulo": "Servicio Complementario",
+          "titulo": "🔧 Servicio Complementario",
+          "texto": "Capacitación, formación continua y talleres prácticos orientados al fortalecimiento de competencias del capital humano en áreas técnicas y de liderazgo."
+        }
+      ]
+    },
+    {
+      "id": "seccion3",
+      "menu_titulo": "Valores",
+      "titulo": "Valores",
+      "descripcion": "Nuestro actuar está guiado por un conjunto de principios que definen nuestra identidad institucional y orientan cada decisión que tomamos, tanto hacia nuestros colaboradores como hacia la comunidad.",
+      "fondo_alt": false,
+      "cards": [
+        {
+          "id": "sec3-sub1",
+          "menu_titulo": "Valores Institucionales",
+          "titulo": "🏛️ Valores Institucionales",
+          "texto": "Integridad · Respeto · Compromiso · Excelencia · Innovación.\n\nEstos pilares guían nuestra cultura organizacional y son el estándar con el que medimos nuestras acciones y resultados."
+        },
+        {
+          "id": "sec3-sub2",
+          "menu_titulo": "Código de Ética",
+          "titulo": "📋 Código de Ética",
+          "texto": "Contamos con un código de ética institucional que establece las normas de conducta para todos nuestros colaboradores, garantizando transparencia, equidad y respeto en cada interacción interna y externa."
+        }
+      ]
+    },
+    {
+      "id": "seccion4",
+      "menu_titulo": "Noticias",
+      "titulo": "Noticias",
+      "descripcion": "Mantente informado sobre las últimas novedades, logros institucionales y eventos de nuestra organización. Aquí encontrarás contenido actualizado de forma periódica.",
+      "fondo_alt": true,
+      "cards": [
+        {
+          "id": "sec4-sub1",
+          "menu_titulo": "Últimas Noticias",
+          "titulo": "📰 Últimas Noticias",
+          "texto": "Mayo 2026 — Lanzamiento de nuestro nuevo portal de atención en línea, disponible las 24 horas para todos nuestros usuarios y colaboradores a nivel nacional."
+        },
+        {
+          "id": "sec4-sub2",
+          "menu_titulo": "Eventos",
+          "titulo": "📅 Eventos",
+          "texto": "Próximo evento: Seminario Internacional de Gestión Organizacional — 15 de junio de 2026. Inscripciones abiertas. Cupos limitados. Modalidad presencial y en línea."
+        }
+      ]
+    },
+    {
+      "id": "seccion5",
+      "menu_titulo": "Contacto",
+      "titulo": "Contacto",
+      "descripcion": "Estamos disponibles para atender tus consultas, sugerencias o solicitudes. No dudes en comunicarte con nosotros a través de cualquiera de nuestros canales.",
+      "fondo_alt": false,
+      "cards": [
+        {
+          "id": "sec5-sub1",
+          "menu_titulo": "Información",
+          "titulo": "📍 Información de Contacto",
+          "texto": "📌 Dirección: Av. Principal 1234, Ciudad\n📞 Teléfono: +56 2 2345 6789\n✉️ Email: contacto@orgdemo.cl\n🕐 Horario: Lun–Vie 9:00 – 18:00"
+        },
+        {
+          "id": "sec5-sub2",
+          "menu_titulo": "Formulario",
+          "titulo": "💬 Formulario de Contacto",
+          "texto": "Envíanos tu mensaje y te responderemos a la brevedad.",
+          "tipo": "formulario"
+        }
+      ]
+    }
+  ],
+  "footer": "© 2026 OrgDemo. Todos los derechos reservados."
+}
