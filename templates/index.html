@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OrganizaciÛn Demo</title>
+  <title>Organizaci√≥n Demo</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -60,7 +60,7 @@
       color: #fff; background: rgba(255,255,255,.07);
     }
 
-    /* Submen˙ */
+    /* Submen√∫ */
     .submenu {
       position: absolute; top: var(--nav-h); left: 0;
       background: #252840; min-width: 200px;
@@ -87,7 +87,7 @@
       border-radius: 0 0 8px 8px;
     }
 
-    /* Hamburger (mÛvil) */
+    /* Hamburger (m√≥vil) */
     .hamburger {
       display: none; flex-direction: column; gap: 5px;
       cursor: pointer; background: none; border: none; padding: 6px;
@@ -158,7 +158,7 @@
     .sec-alt { background: #eef2f8; }
     .sec-alt section { background: transparent; }
 
-    /* -- CARRUSEL INFORMACI”N -- */
+    /* -- CARRUSEL INFORMACI√ìN -- */
     #seccion-info { background: #0d0f1a; }
     #seccion-info section { background: transparent; }
     #seccion-info h2 { color: #7ea8d8; border-color: #3a5090; }
@@ -231,7 +231,7 @@
       font-size: 0.82rem;
     }
 
-    /* -- RESPONSIVE M”VIL -- */
+    /* -- RESPONSIVE M√ìVIL -- */
     @media (max-width: 768px) {
       .hamburger { display: flex; margin-left: auto; }
       .nav-menu {
@@ -253,7 +253,7 @@
       .nav-item > a::after { margin-left: auto; }
     }
 
-    /* Ìtem editor en navbar */
+    /* √≠tem editor en navbar */
     .nav-editor > a { color: #7ea8d8 !important; }
     .nav-editor > a::after { display: none; }
   </style>
@@ -264,7 +264,7 @@
 <nav>
   <a class="nav-logo" href="#inicio">{{ contenido.logo }}</a>
 
-  <button class="hamburger" id="hamburger" aria-label="Men˙">
+  <button class="hamburger" id="hamburger" aria-label="Men√∫">
     <span></span><span></span><span></span>
   </button>
 
@@ -282,9 +282,9 @@
     {% endfor %}
 
     <li class="nav-item">
-      <a href="#seccion-info">InformaciÛn</a>
+      <a href="#seccion-info">Informaci√≥n</a>
       <ul class="submenu">
-        <li><a href="#seccion-info">GalerÌa de Im·genes</a></li>
+        <li><a href="#seccion-info">Galer√≠a de Im√°genes</a></li>
       </ul>
     </li>
 
@@ -292,7 +292,7 @@
       <a href="/editar">? Editor</a>
       <ul class="submenu">
         <li><a href="/editar">Editar contenido</a></li>
-        <li><a href="/editar#tab-imagenes">Gestionar im·genes</a></li>
+        <li><a href="/editar#tab-imagenes">Gestionar im√°genes</a></li>
       </ul>
     </li>
 
@@ -332,11 +332,11 @@
 </div>
 {% endfor %}
 
-<!-- -- SECCI”N INFORMACI”N: CARRUSEL -- -->
+<!-- -- SECCI√ìN INFORMACI√ìN: CARRUSEL -- -->
 <div id="seccion-info" class="sec-alt" style="background:#0d0f1a">
   <section>
-    <h2>??? GalerÌa de Im·genes</h2>
-    <p>Explora nuestra galerÌa institucional. Usa las flechas, el teclado ? ? o haz clic en la imagen para avanzar. Pulsa pantalla completa para una vista inmersiva.</p>
+    <h2>??? Galer√≠a de Im√°genes</h2>
+    <p>Explora nuestra galer√≠a institucional. Usa las flechas, el teclado ? ? o haz clic en la imagen para avanzar. Pulsa pantalla completa para una vista inmersiva.</p>
 
     <div class="c-controls">
       <label>Velocidad:</label>
@@ -385,7 +385,7 @@
 </footer>
 
 <script>
-  /* -- CARRUSEL INFORMACI”N -- */
+  /* -- CARRUSEL INFORMACI√ìN -- */
   (function() {
     const imgs    = [{% for img in images %}"{{ img }}"{% if not loop.last %},{% endif %}{% endfor %}];
     const total   = imgs.length;
