@@ -9,62 +9,62 @@
       "id": "seccion1",
       "menu_titulo": "Quiénes Somos",
       "titulo": "Quiénes Somos",
-      "descripcion": "Somos una institución con más de 20 años de trayectoria, dedicada a brindar soluciones integrales con enfoque humano, ético y sostenible. Nuestro equipo multidisciplinario trabaja cada día para generar un impacto positivo en la sociedad.",
+      "descripcion": "Somos una plataforma especializada en salud sexual y reproductiva que acompaña a las personas para vivir su sexualidad con libertad, autoconocimiento, autonomía y placer, a través de servicios profesionales y productos educativos de calidad.",
       "fondo_alt": false,
       "cards": [
         {
           "id": "sec1-sub1",
           "menu_titulo": "Misión",
           "titulo": "🎯 Misión",
-          "texto": "Contribuir al desarrollo integral de las personas y organizaciones mediante servicios de alta calidad, basados en principios de transparencia, innovación y responsabilidad social, generando valor sostenible para la comunidad."
+          "texto": "Brindar un acompañamiento integral en salud sexual y reproductiva accesible, que empodere a las personas para vivir su sexualidad con libertad, autoconocimiento, autonomía y placer, a través de servicios especializados y productos educativos de calidad."
         },
         {
           "id": "sec1-sub2",
           "menu_titulo": "Visión",
-          "titulo": "🔭 Visión",
-          "texto": "Ser reconocidos para el año 2030 como la organización líder en nuestra región, referente en buenas prácticas institucionales, innovación tecnológica y compromiso con el bienestar humano y medioambiental."
+          "titulo": "👁️ Visión",
+          "texto": "Ser una plataforma referente global en productos y servicios en salud sexual consciente, que brinde acompañamiento emocional y bienestar íntimo, fomentando una sociedad más informada, libre de tabúes y con relaciones más sanas."
         }
       ]
     },
     {
       "id": "seccion2",
-      "menu_titulo": "Servicios",
-      "titulo": "Servicios",
-      "descripcion": "Ofrecemos una amplia cartera de servicios diseñados para atender las necesidades específicas de cada cliente, combinando experiencia profesional con las herramientas tecnológicas más actuales.",
+      "menu_titulo": "Objetivos",
+      "titulo": "Nuestros Objetivos",
+      "descripcion": "Trabajamos con propósito claro: ofrecer un espacio seguro y profesional donde las personas encuentren asesoría personalizada y herramientas que promuevan el bienestar sexual y emocional.",
       "fondo_alt": true,
       "cards": [
         {
           "id": "sec2-sub1",
-          "menu_titulo": "Servicio Principal",
-          "titulo": "⚙️ Servicio Principal",
-          "texto": "Asesoría y acompañamiento especializado en procesos de gestión organizacional, optimización de recursos y planificación estratégica para instituciones públicas y privadas."
+          "menu_titulo": "Objetivo General",
+          "titulo": "🎯 Objetivo General",
+          "texto": "Ofrecer un espacio seguro y profesional donde las personas puedan encontrar asesoría personalizada y productos que faciliten el desarrollo integral de la sexualidad, resolver dudas con especialistas, y acceder a herramientas que promuevan el bienestar sexual y emocional."
         },
         {
           "id": "sec2-sub2",
-          "menu_titulo": "Servicio Complementario",
-          "titulo": "🔧 Servicio Complementario",
-          "texto": "Capacitación, formación continua y talleres prácticos orientados al fortalecimiento de competencias del capital humano en áreas técnicas y de liderazgo."
+          "menu_titulo": "Objetivos Específicos",
+          "titulo": "📋 Objetivos Específicos",
+          "texto": "• Promover el autoconocimiento y el respeto por la diversidad sexual.\n• Brindar asesoría profesional confiable y ética.\n• Fomentar una visión positiva, inclusiva y libre de culpa sobre el placer.\n• Acompañar los procesos vitales (como la maternidad y el climaterio) desde una perspectiva afectiva e informada."
         }
       ]
     },
     {
       "id": "seccion3",
       "menu_titulo": "Valores",
-      "titulo": "Valores",
-      "descripcion": "Nuestro actuar está guiado por un conjunto de principios que definen nuestra identidad institucional y orientan cada decisión que tomamos, tanto hacia nuestros colaboradores como hacia la comunidad.",
+      "titulo": "Nuestros Valores",
+      "descripcion": "Cada servicio y producto que ofrecemos está sustentado en principios que garantizan un acompañamiento respetuoso, ético, inclusivo y auténtico para todas las personas.",
       "fondo_alt": false,
       "cards": [
         {
           "id": "sec3-sub1",
-          "menu_titulo": "Valores Institucionales",
-          "titulo": "🏛️ Valores Institucionales",
-          "texto": "Integridad · Respeto · Compromiso · Excelencia · Innovación.\n\nEstos pilares guían nuestra cultura organizacional y son el estándar con el que medimos nuestras acciones y resultados."
+          "menu_titulo": "Valores",
+          "titulo": "🌱 Nuestros Valores",
+          "texto": "🤝 Respeto → por la diversidad de cuerpos, identidades, deseos y experiencias.\n📚 Educación → como herramienta de empoderamiento y libertad.\n🔒 Confidencialidad → en todos los servicios ofrecidos.\n🌈 Inclusión → sin juicios, sin tabúes, para todas las orientaciones y géneros."
         },
         {
           "id": "sec3-sub2",
-          "menu_titulo": "Código de Ética",
-          "titulo": "📋 Código de Ética",
-          "texto": "Contamos con un código de ética institucional que establece las normas de conducta para todos nuestros colaboradores, garantizando transparencia, equidad y respeto en cada interacción interna y externa."
+          "menu_titulo": "Compromiso",
+          "titulo": "💛 Nuestro Compromiso",
+          "texto": "💬 Empatía → para acompañar desde la escucha, sin patologizar.\n🎓 Calidad profesional → servicios respaldados por expertas formadas.\n✨ Autenticidad → promovemos el placer con sentido, sin imposiciones ni estereotipos."
         }
       ]
     },
