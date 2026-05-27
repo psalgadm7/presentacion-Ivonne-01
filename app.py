@@ -1,4 +1,5 @@
 import os
+import re
 import json
 from flask import Flask, render_template, request, jsonify, send_from_directory
 
@@ -9,6 +10,12 @@ CONTENIDO_FILE = os.path.join(CONTENT_DIR, "contenido.json")
 IMAGES_DIR     = os.path.join(CONTENT_DIR, "images")
 ORDEN_FILE     = os.path.join(IMAGES_DIR, "orden.json")
 EXTS           = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+
+ALLOWED_MEDIA = {
+    "imagen": ({"jpg", "jpeg", "png", "gif", "webp"},  "images"),
+    "video":  ({"mp4", "webm", "ogv"},                  "videos"),
+    "audio":  ({"mp3", "wav", "ogg", "m4a"},            "audio"),
+}
 
 
 def load_contenido():
@@ -48,6 +55,32 @@ def save_orden(orden):
 @app.route("/content/<path:filename>")
 def serve_content(filename):
     return send_from_directory(CONTENT_DIR, filename)
+
+
+# ── Subir media (imagen / video / audio) ────────────────────────
+@app.route("/subir-media", methods=["POST"])
+def subir_media():
+    tipo = request.form.get("tipo", "imagen")
+    if tipo not in ALLOWED_MEDIA:
+        return jsonify({"ok": False, "error": "tipo inválido"}), 400
+    f = request.files.get("archivo")
+    if not f or not f.filename:
+        return jsonify({"ok": False, "error": "sin archivo"}), 400
+    ext = os.path.splitext(f.filename)[1].lstrip(".").lower()
+    exts_ok, subcarpeta = ALLOWED_MEDIA[tipo]
+    if ext not in exts_ok:
+        return jsonify({"ok": False, "error": f"extensión .{ext} no permitida"}), 400
+    # Nombre seguro
+    nombre_base = re.sub(r"[^\w.-]", "_", os.path.splitext(os.path.basename(f.filename))[0])
+    nombre = nombre_base + "." + ext
+    destino = os.path.join(CONTENT_DIR, subcarpeta, nombre)
+    counter = 1
+    while os.path.exists(destino):          # evitar sobreescritura
+        nombre = f"{nombre_base}_{counter}.{ext}"
+        destino = os.path.join(CONTENT_DIR, subcarpeta, nombre)
+        counter += 1
+    f.save(destino)
+    return jsonify({"ok": True, "url": f"/content/{subcarpeta}/{nombre}", "nombre": nombre})
 
 
 # ── Rutas públicas ──────────────────────────────────────────

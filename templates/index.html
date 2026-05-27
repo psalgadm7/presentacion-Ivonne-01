@@ -155,6 +155,27 @@
     .card h3 { color: var(--color-primary); margin-bottom: 0.5rem; font-size: 1.26rem; }
     .card p  { color: var(--color-muted); font-size: 1.08rem; line-height: 1.6; }
 
+    /* ── BLOQUES DE MEDIA ── */
+    .bloque { margin-bottom: 1rem; }
+    .bloque-imagen { text-align: center; }
+    .bloque-imagen img { max-width: 100%; border-radius: 8px; }
+    .bloque-imagen figcaption,
+    .bloque-caption { font-size: 0.82rem; color: var(--color-muted); margin-top: 0.3rem; font-style: italic; }
+    .bloque-video-wrap { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; }
+    .bloque-video-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+    .bloque-video-wrap video  { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    .bloque-audio audio { width: 100%; }
+    .bloque-enlace-btn {
+      display: inline-block; background: var(--color-primary); color: #fff;
+      padding: 0.4rem 1.1rem; border-radius: 6px; text-decoration: none;
+      font-size: 0.9rem; transition: opacity .2s;
+    }
+    .bloque-enlace-btn:hover { opacity: 0.85; }
+    .bloque-widget { overflow: hidden; }
+    .bloque-red-social { overflow: hidden; }
+    .bloque-red-social iframe,
+    .bloque-red-social blockquote { max-width: 100% !important; }
+
     /* Alternar fondo de secciones */
     .sec-alt { background: #eef2f8; }
     .sec-alt section { background: transparent; }
@@ -325,6 +346,41 @@
         <input type="email" placeholder="Tu correo" style="width:100%;padding:0.5rem;margin-bottom:0.5rem;border:1px solid #ccc;border-radius:6px;font-size:0.85rem">
         <textarea placeholder="Tu mensaje" rows="3" style="width:100%;padding:0.5rem;margin-bottom:0.5rem;border:1px solid #ccc;border-radius:6px;font-size:0.85rem;resize:vertical"></textarea>
         <button style="background:#3a5fa0;color:#fff;border:none;padding:0.5rem 1.2rem;border-radius:6px;cursor:pointer;font-size:0.85rem">Enviar</button>
+        {% elif card.bloques is defined and card.bloques %}
+          {% for bloque in card.bloques %}
+            {% if bloque.tipo == 'texto' %}
+              <div class="bloque">{{ bloque.contenido | replace('\n\n','<br><br>') | replace('\n','<br>') | safe }}</div>
+            {% elif bloque.tipo == 'imagen' %}
+              <figure class="bloque bloque-imagen">
+                <img src="{{ bloque.src }}" alt="{{ bloque.alt or '' }}" loading="lazy">
+                {% if bloque.caption %}<figcaption>{{ bloque.caption }}</figcaption>{% endif %}
+              </figure>
+            {% elif bloque.tipo == 'video' %}
+              <div class="bloque">
+                <div class="bloque-video-wrap">
+                  {% if bloque.url %}
+                  <iframe src="{{ bloque.url }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                  {% elif bloque.src %}
+                  <video controls><source src="{{ bloque.src }}"></video>
+                  {% endif %}
+                </div>
+                {% if bloque.caption %}<p class="bloque-caption">{{ bloque.caption }}</p>{% endif %}
+              </div>
+            {% elif bloque.tipo == 'audio' %}
+              <div class="bloque bloque-audio">
+                <audio controls><source src="{{ bloque.src }}">Tu navegador no soporta audio.</audio>
+                {% if bloque.caption %}<p class="bloque-caption">{{ bloque.caption }}</p>{% endif %}
+              </div>
+            {% elif bloque.tipo == 'enlace' %}
+              <div class="bloque">
+                <a href="{{ bloque.url }}" class="bloque-enlace-btn" target="_blank" rel="noopener noreferrer">{{ bloque.label or bloque.url }}</a>
+              </div>
+            {% elif bloque.tipo == 'widget' %}
+              <div class="bloque bloque-widget">{{ bloque.html | safe }}</div>
+            {% elif bloque.tipo == 'red_social' %}
+              <div class="bloque bloque-red-social">{{ bloque.html | safe }}</div></div>
+            {% endif %}
+          {% endfor %}
         {% else %}
         <p>{{ card.texto | replace('\n\n', '<br><br>') | replace('\n', '<br>') | safe }}</p>
         {% endif %}
