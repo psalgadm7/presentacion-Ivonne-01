@@ -69,6 +69,57 @@
       ]
     },
     {
+      "id": "seccion-contenidos",
+      "menu_titulo": "Contenidos",
+      "titulo": "Contenidos",
+      "descripcion": "Artículos, reflexiones y herramientas para vivir tu sexualidad con información, autonomía y placer. Aquí encontrarás contenido elaborado por profesionales para acompañarte en cada etapa.",
+      "fondo_alt": false,
+      "cards": [
+        {
+          "id": "cont-1",
+          "menu_titulo": "Reescribamos Nuestra Sexualidad",
+          "titulo": "✨ Reescribamos Nuestra Sexualidad",
+          "texto": "Desde pequeñxs nos enseñaron que la sexualidad debía seguir ciertos moldes: princesas rescatadas, procesos femeninos vistos como enfermedades y la diversidad invisibilizada.\n\nEn Plena entendemos que la sexualidad es parte de tu bienestar. Te invitamos a redescubrirla, explorarla y vivirla de forma saludable, abarcando el deseo, el placer, el respeto y la autonomía.\n\nAtrévete, conócenos y descubre cómo te podemos ayudar."
+        },
+        {
+          "id": "cont-2",
+          "menu_titulo": "Las 5C de la Sexualidad",
+          "titulo": "5️⃣ Las 5C de la Sexualidad Saludable",
+          "texto": "Un punto de partida hacia una sexualidad saludable:\n\n🔍 Conocer(se): anticiparte a cambios, protegerte y saber qué te gusta.\n💬 Comunicación: pedir lo que quieres con confianza y consenso.\n🤝 Complicidad: construir y nutrir el repertorio erótico juntos.\n💛 Cuidado: corresponsabilidad, salud y expectativas compartidas.\n✅ Consentimiento: todo vale si todxs están explícitamente de acuerdo, en todo momento y sin presiones."
+        },
+        {
+          "id": "cont-3",
+          "menu_titulo": "Conocer(se)",
+          "titulo": "🔍 Conocer(se)",
+          "texto": "¿Sabías que el clítoris fue descrito completamente recién a fines de los 90? ¿Sabías que apenas 1 de cada 3 mujeres alcanza el orgasmo regularmente solo con penetración vaginal?\n\nCulturalmente nuestro cuerpo ha permanecido oculto hasta para nosotrxs mismas. Conocerlo es el primer paso para cuidarlo, habitarlo y disfrutarlo.\n\nTe ofrecemos:\n📚 Talleres\n👩‍⚕️ Consulta especializada\n📞 Línea Conocerse"
+        },
+        {
+          "id": "cont-4",
+          "menu_titulo": "Comunicación",
+          "titulo": "💬 Comunicación",
+          "texto": "Ya sé lo que quiero — ¿cómo lo pido?\n\n1. Di si algo no te gusta: no replicar el patrón es el primer paso.\n2. Dense un espacio de retroalimentación y confianza antes de acumular incomodidades.\n3. Guía con un «mejor hazlo así» en lugar de la frustración silenciosa.\n4. Establecer límites es sano: no des nada por entendido.\n\nRecuerda: quien tienes al frente es una persona distinta, con distintas enseñanzas y experiencias. No se nace sabiendo."
+        },
+        {
+          "id": "cont-5",
+          "menu_titulo": "Complicidad",
+          "titulo": "🤝 Complicidad",
+          "texto": "El deseo se construye. Algunos tips para nutrir tu repertorio erótico:\n\n✨ Habla sobre fantasías: es el primer paso hacia nuevas experiencias.\n🕯️ Prepara el ambiente «en clave erótica»: aromas, música, mensajes compartidos.\n🌊 No seas espectadorx: permítete disfrutar y dejarte llevar.\n💧 El lubricante es tu aliado: existe una gran variedad de sensaciones.\n🛋️ Accesorios como cuñas inflables amplían posibilidades.\n🎮 Juguetes eróticos: aliados perfectos para romper la rutina. ¡Asesórate con nosotrxs!"
+        },
+        {
+          "id": "cont-6",
+          "menu_titulo": "Cuidado de Productos",
+          "titulo": "💛 Cuidado de tus Productos Íntimos",
+          "texto": "Cualquier producto no da lo mismo. Consejos clave:\n\n1. Verifica materiales: libre de látex, ftalatos u otros agentes dañinos.\n2. Lee y guarda las instrucciones del fabricante.\n3. Lava con agua tibia y jabón neutro; descarta si el material se daña.\n4. No todos son sumergibles: cubre la parte eléctrica antes de usarlos.\n5. Seca sobre toalla exclusiva antes de guardar.\n6. Guarda en lugar fresco y seco, fuera del alcance de niñxs.\n7. Usa lubricantes a base de agua o silicona según indique el fabricante.\n8. Si compartes o cambias de acceso, usa condón y cámbialo cada vez.\n9. ¿Dudas? Pregunta por nuestras asesorías en salud sexual."
+        },
+        {
+          "id": "cont-7",
+          "menu_titulo": "Consentimiento",
+          "titulo": "✅ Consentimiento",
+          "texto": "NO es NO. Pero aprendamos también a leer a nuestra pareja: los cambios repentinos pueden indicar algo — tal vez es momento de parar y hablarlo.\n\nEl sexo nunca debe ser una obligación ni una moneda de cambio.\n\nTodo está permitido cuando:\n• Todxs están explícitamente de acuerdo (consciente y específico)\n• En todo momento — se vale retractarse\n• Sin presión de ningún tipo\n• Es específico: sé clarx hasta dónde quieres permitir\n\n¿Deseas explorar nuevos límites con seguridad? Línea Consentimiento."
+        }
+      ]
+    },
+    {
       "id": "seccion4",
       "menu_titulo": "Noticias",
       "titulo": "Noticias",
