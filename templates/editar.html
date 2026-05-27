@@ -305,7 +305,7 @@
     <div class="img-grid" id="img-grid">
       {% for img in images %}
       <div class="img-item" data-name="{{ img }}">
-        <img src="{{ url_for('static', filename='images/' + img) }}" alt="{{ img }}" loading="lazy">
+        <img src="/content/images/{{ img }}" alt="{{ img }}" loading="lazy">
         <div class="img-name">{{ img }}</div>
         <button class="img-del" onclick="delImagen(this, '{{ img }}')" title="Eliminar">✕</button>
       </div>

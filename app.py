@@ -1,11 +1,12 @@
 import os
 import json
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 
 app = Flask(__name__)
 
-CONTENIDO_FILE = os.path.join(app.root_path, "contenido.json")
-IMAGES_DIR     = os.path.join(app.root_path, "static", "images")
+CONTENT_DIR    = os.path.join(app.root_path, "content")
+CONTENIDO_FILE = os.path.join(CONTENT_DIR, "contenido.json")
+IMAGES_DIR     = os.path.join(CONTENT_DIR, "images")
 ORDEN_FILE     = os.path.join(IMAGES_DIR, "orden.json")
 EXTS           = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 
@@ -41,6 +42,12 @@ def get_images():
 def save_orden(orden):
     with open(ORDEN_FILE, "w", encoding="utf-8") as f:
         json.dump(orden, f, ensure_ascii=False)
+
+
+# ── Servir archivos de contenido ────────────────────────────
+@app.route("/content/<path:filename>")
+def serve_content(filename):
+    return send_from_directory(CONTENT_DIR, filename)
 
 
 # ── Rutas públicas ──────────────────────────────────────────

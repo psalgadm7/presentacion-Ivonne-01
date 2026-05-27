@@ -356,7 +356,7 @@
       <div class="c-viewport" id="cViewport" onclick="cMove(1)">
         {% for img in images %}
         <div class="c-slide{% if loop.first %} current{% endif %}" data-index="{{ loop.index0 }}">
-          <img src="{{ url_for('static', filename='images/' + img) }}" alt="{{ img }}" loading="lazy" draggable="false" />
+          <img src="/content/images/{{ img }}" alt="{{ img }}" loading="lazy" draggable="false" />
         </div>
         {% endfor %}
       </div>
@@ -373,7 +373,7 @@
     <div class="c-thumbs" id="cThumbs">
       {% for img in images %}
       <img class="c-thumb{% if loop.first %} active{% endif %}"
-        src="{{ url_for('static', filename='images/' + img) }}"
+        src="/content/images/{{ img }}"
         alt="{{ img }}" loading="lazy" onclick="cGoTo({{ loop.index0 }})" />
       {% endfor %}
     </div>

@@ -1,8 +1,8 @@
 {
-  "logo": "OrgDemo",
-  "titulo_sitio": "Organización Demo",
-  "hero_titulo": "Bienvenidos a OrgDemo",
-  "hero_texto": "Somos una organización comprometida con el desarrollo sostenible, la innovación y el bienestar de las comunidades que servimos. Conoce nuestra misión, visión y los servicios que ofrecemos.",
+  "logo": "Plena",
+  "titulo_sitio": "Plena",
+  "hero_titulo": "Bienvenidos a Plena",
+  "hero_texto": "Somos una plataforma especializada en salud sexual y reproductiva que acompaña a las personas para vivir su sexualidad con libertad, autoconocimiento, autonomía y placer, a través de servicios profesionales y productos educativos de calidad.",
   "hero_boton": "Conocer más ↓",
   "secciones": [
     {
@@ -112,5 +112,5 @@
       ]
     }
   ],
-  "footer": "© 2026 OrgDemo. Todos los derechos reservados."
+  "footer": "© 2026 Plena. Todos los derechos reservados."
 }
