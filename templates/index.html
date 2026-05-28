@@ -310,9 +310,26 @@
     /* -- FOOTER -- */
     footer {
       background: var(--color-dark); color: #6a7090;
-      text-align: center; padding: 1.5rem;
+      text-align: center; padding: 2.5rem 1.5rem 1.8rem;
       font-size: 0.82rem;
     }
+    .footer-credits {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      gap: 1.5rem 3rem; margin-bottom: 1.4rem;
+    }
+    .footer-credit-item { text-align: center; }
+    .footer-credit-role {
+      font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: #4a5275; margin-bottom: 0.2rem;
+    }
+    .footer-credit-name {
+      font-size: 0.9rem; font-weight: 600; color: #a0aac0;
+    }
+    .footer-divider {
+      width: 40px; height: 1px; background: #2a2e45;
+      margin: 0 auto 1.2rem;
+    }
+    .footer-legal { font-size: 0.76rem; color: #3a4060; }
 
     /* -- RESPONSIVE MÓVIL -- */
     @media (max-width: 768px) {
@@ -534,7 +551,18 @@
 
 <!-- -- FOOTER -- -->
 <footer>
-  <p>{{ contenido.footer }}</p>
+  <div class="footer-credits">
+    <div class="footer-credit-item">
+      <div class="footer-credit-role">Content Creation</div>
+      <div class="footer-credit-name">Ivonne Casas Gago</div>
+    </div>
+    <div class="footer-credit-item">
+      <div class="footer-credit-role">Web Design &amp; Development</div>
+      <div class="footer-credit-name">Pablo Salgado Miranda</div>
+    </div>
+  </div>
+  <div class="footer-divider"></div>
+  <p class="footer-legal">{{ contenido.footer }}</p>
 </footer>
 
 <script>
