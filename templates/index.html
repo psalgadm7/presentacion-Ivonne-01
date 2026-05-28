@@ -123,7 +123,7 @@
     /* -- SECCIONES GENERALES -- */
     section {
       padding: calc(var(--nav-h) + 3rem) 2rem 4rem;
-      max-width: 960px; margin: 0 auto;
+      max-width: 1100px; margin: 0 auto;
     }
     section h2 {
       font-size: 2rem; color: var(--color-primary);
@@ -155,15 +155,36 @@
     .card h3 { color: var(--color-primary); margin-bottom: 0.5rem; font-size: 1.26rem; }
     .card p  { color: var(--color-muted); font-size: 1.08rem; line-height: 1.6; }
 
+    /* ── TARJETAS CON MEDIA PESADA ── */
+    .card-wide { grid-column: 1 / -1; }
+
+    .card-header {
+      display: flex; align-items: flex-start;
+      padding-bottom: 0.75rem; margin-bottom: 0.9rem;
+      border-bottom: 2px solid #eef0f5;
+    }
+    .card-header h3 { margin: 0; color: var(--color-primary); font-size: 1.15rem; }
+    .card-body { }
+
     /* ── BLOQUES DE MEDIA ── */
-    .bloque { margin-bottom: 1rem; }
+    .bloque { margin-bottom: 0.9rem; }
+    .bloque + .bloque { border-top: 1px solid #f0f2f7; padding-top: 0.9rem; }
     .bloque-imagen { text-align: center; }
     .bloque-imagen img { max-width: 100%; border-radius: 8px; }
     .bloque-imagen figcaption,
-    .bloque-caption { font-size: 0.82rem; color: var(--color-muted); margin-top: 0.3rem; font-style: italic; }
-    .bloque-video-wrap { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; }
+    .bloque-caption { font-size: 0.82rem; color: var(--color-muted); margin-top: 0.4rem; font-style: italic; text-align: center; }
+    /* Embeds (YouTube, Vimeo, etc.) */
+    .bloque-video-wrap {
+      position: relative; padding-bottom: 56.25%; height: 0;
+      overflow: hidden; border-radius: 10px;
+      background: #0d0f1a;
+    }
     .bloque-video-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
-    .bloque-video-wrap video  { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    /* Videos locales (mp4/webm) */
+    .bloque-video-local video {
+      width: 100%; max-height: 480px; border-radius: 10px;
+      display: block; background: #0d0f1a;
+    }
     .bloque-audio audio { width: 100%; }
     .bloque-enlace-btn {
       display: inline-block; background: var(--color-primary); color: #fff;
@@ -171,10 +192,14 @@
       font-size: 0.9rem; transition: opacity .2s;
     }
     .bloque-enlace-btn:hover { opacity: 0.85; }
-    .bloque-widget { overflow: hidden; }
-    .bloque-red-social { overflow: hidden; }
-    .bloque-red-social iframe,
-    .bloque-red-social blockquote { max-width: 100% !important; }
+    .bloque-widget { overflow: auto; }
+    /* Redes sociales: centrar el embed */
+    .bloque-red-social {
+      display: flex; flex-direction: column; align-items: center;
+      overflow: visible;
+    }
+    .bloque-red-social > * { max-width: 560px !important; width: 100% !important; }
+    .bloque-red-social iframe { border: none; }
 
     /* Alternar fondo de secciones */
     .sec-alt { background: #eef2f8; }
@@ -338,8 +363,14 @@
     <p>{{ sec.descripcion }}</p>
     <div class="subsecciones">
       {% for card in sec.cards %}
-      <div class="card" id="{{ card.id }}">
-        <h3>{{ card.titulo }}</h3>
+      {#– Detectar si la tarjeta tiene bloques de media "pesada" (video, embed, red social) –#}
+      {% set ns = namespace(wide=false) %}
+      {% if card.bloques is defined %}
+        {% for _b in card.bloques %}{% if _b.tipo in ['video','widget','red_social'] %}{% set ns.wide = true %}{% endif %}{% endfor %}
+      {% endif %}
+      <div class="card{% if ns.wide %} card-wide{% endif %}" id="{{ card.id }}">
+        <div class="card-header"><h3>{{ card.titulo }}</h3></div>
+        <div class="card-body">
         {% if card.tipo is defined and card.tipo == "formulario" %}
         <p style="margin-bottom:0.8rem">{{ card.texto }}</p>
         <input type="text" placeholder="Tu nombre" style="width:100%;padding:0.5rem;margin-bottom:0.5rem;border:1px solid #ccc;border-radius:6px;font-size:0.85rem">
@@ -356,14 +387,19 @@
                 {% if bloque.caption %}<figcaption>{{ bloque.caption }}</figcaption>{% endif %}
               </figure>
             {% elif bloque.tipo == 'video' %}
+              {#– Detectar si bloque.url apunta a un video local (no a YouTube/Vimeo) –#}
+              {% set _vurl = (bloque.url or '') | lower %}
+              {% set _is_local = '.mp4' in _vurl or '.webm' in _vurl or '.ogv' in _vurl %}
               <div class="bloque">
+                {% if bloque.url and not _is_local %}
                 <div class="bloque-video-wrap">
-                  {% if bloque.url %}
                   <iframe src="{{ bloque.url }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                  {% elif bloque.src %}
-                  <video controls><source src="{{ bloque.src }}"></video>
-                  {% endif %}
                 </div>
+                {% elif bloque.src or _is_local %}
+                <div class="bloque-video-local">
+                  <video controls><source src="{{ bloque.src or bloque.url }}"></video>
+                </div>
+                {% endif %}
                 {% if bloque.caption %}<p class="bloque-caption">{{ bloque.caption }}</p>{% endif %}
               </div>
             {% elif bloque.tipo == 'audio' %}
@@ -378,12 +414,13 @@
             {% elif bloque.tipo == 'widget' %}
               <div class="bloque bloque-widget">{{ bloque.html | safe }}</div>
             {% elif bloque.tipo == 'red_social' %}
-              <div class="bloque bloque-red-social">{{ bloque.html | safe }}</div></div>
+              <div class="bloque bloque-red-social">{{ bloque.html | safe }}</div>
             {% endif %}
           {% endfor %}
         {% else %}
         <p>{{ card.texto | replace('\n\n', '<br><br>') | replace('\n', '<br>') | safe }}</p>
         {% endif %}
+        </div>{# /card-body #}
       </div>
       {% endfor %}
     </div>
