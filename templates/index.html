@@ -507,12 +507,12 @@
                     {% if bloque.descripcion %}<p class="doc-desc">{{ bloque.descripcion }}</p>{% endif %}
                   </div>
                   {% if bloque.src %}
-                  <button class="doc-ver" onclick="toggleDocPreview(this,'{{ bloque.src }}','{{ _ext }}')">👁 Ver</button>
-                  <a class="doc-dl" href="{{ bloque.src }}" target="_blank" download>⬇ Descargar</a>
+                  <button class="doc-ver active" onclick="toggleDocPreview(this,'{{ bloque.src }}','{{ _ext }}')">&#x2715; Cerrar</button>
+                  <a class="doc-dl" href="{{ bloque.src }}" target="_blank" download>&#x2B07; Descargar</a>
                   {% endif %}
                 </div>
                 {% if bloque.src %}
-                <div class="bloque-doc-preview"></div>
+                <div class="bloque-doc-preview open" data-src="{{ bloque.src }}" data-ext="{{ _ext }}"></div>
                 {% endif %}
               </div>
             {% endif %}
@@ -593,6 +593,18 @@
 
 <script>
   /* -- PREVISUALIZACIÓN DE DOCUMENTOS -- */
+  function _abrirDocPreview(preview, src, ext) {
+    const officeExts = ['doc','docx','xls','xlsx','ppt','pptx'];
+    let iframeSrc;
+    if (officeExts.includes(ext)) {
+      iframeSrc = 'https://docs.google.com/viewer?url=' +
+        encodeURIComponent(window.location.origin + src) + '&embedded=true';
+    } else {
+      iframeSrc = src;
+    }
+    preview.innerHTML = '<iframe src="' + iframeSrc + '" loading="lazy"></iframe>';
+  }
+
   function toggleDocPreview(btn, src, ext) {
     const wrap    = btn.closest('.bloque-documento-wrap');
     const preview = wrap.querySelector('.bloque-doc-preview');
@@ -603,21 +615,17 @@
       btn.textContent = '👁 Ver';
       return;
     }
-    const officeExts = ['doc','docx','xls','xlsx','ppt','pptx'];
-    let iframeSrc;
-    if (officeExts.includes(ext)) {
-      iframeSrc = 'https://docs.google.com/viewer?url=' +
-        encodeURIComponent(window.location.origin + src) + '&embedded=true';
-    } else {
-      iframeSrc = src;   // PDF y TXT se incrustan directo
-    }
-    preview.innerHTML = '<iframe src="' + iframeSrc + '" loading="lazy"></iframe>';
+    _abrirDocPreview(preview, src, ext);
     preview.classList.add('open');
     btn.classList.add('active');
     btn.textContent = '✕ Cerrar';
-    // Desplazar suavemente hacia la previsualización
     setTimeout(function() { preview.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 80);
   }
+
+  // Inicializar previsualizaciones abiertas por defecto
+  document.querySelectorAll('.bloque-doc-preview[data-src]').forEach(function(preview) {
+    _abrirDocPreview(preview, preview.dataset.src, preview.dataset.ext);
+  });
 
   /* -- CARRUSEL INFORMACIÓN -- */
   (function() {
