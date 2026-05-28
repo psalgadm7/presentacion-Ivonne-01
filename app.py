@@ -134,6 +134,21 @@ def eliminar_imagen():
     return jsonify({"ok": True})
 
 
+@app.route("/eliminar-media", methods=["POST"])
+def eliminar_media():
+    """Elimina un archivo de media (imagen, video, audio) de content/."""
+    data      = request.get_json(force=True)
+    tipo      = data.get("tipo", "imagen")
+    nombre    = os.path.basename(data.get("nombre", ""))  # prevenir path traversal
+    if tipo not in ALLOWED_MEDIA or not nombre:
+        return jsonify({"ok": False, "error": "datos inválidos"}), 400
+    _, subcarpeta = ALLOWED_MEDIA[tipo]
+    path = os.path.join(CONTENT_DIR, subcarpeta, nombre)
+    if os.path.isfile(path):
+        os.remove(path)
+    return jsonify({"ok": True})
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=False)
