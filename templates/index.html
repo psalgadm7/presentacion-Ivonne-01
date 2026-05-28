@@ -236,16 +236,6 @@
       white-space: nowrap; flex-shrink: 0; transition: opacity .2s;
     }
     .bloque-documento .doc-dl:hover { opacity: .85; }
-    .doc-ver {
-      display: inline-flex; align-items: center; gap: 0.35rem;
-      background: #eef2f8; color: var(--color-primary);
-      border: 1px solid #c8d8ee; padding: 0.4rem 0.9rem;
-      border-radius: 7px; font-size: 0.84rem; font-weight: 600;
-      cursor: pointer; white-space: nowrap; flex-shrink: 0;
-      transition: background .2s;
-    }
-    .doc-ver:hover { background: #dce6f5; }
-    .doc-ver.active { background: var(--color-primary); color: #fff; border-color: transparent; }
     .bloque-doc-preview {
       display: none; margin-top: 0.6rem;
       border-radius: 8px; overflow: hidden;
@@ -507,7 +497,7 @@
                     {% if bloque.descripcion %}<p class="doc-desc">{{ bloque.descripcion }}</p>{% endif %}
                   </div>
                   {% if bloque.src %}
-                  <button class="doc-ver active" onclick="toggleDocPreview(this,'{{ bloque.src }}','{{ _ext }}')">&#x2715; Cerrar</button>
+
                   <a class="doc-dl" href="{{ bloque.src }}" target="_blank" download>&#x2B07; Descargar</a>
                   {% endif %}
                 </div>
@@ -603,23 +593,6 @@
       iframeSrc = src;
     }
     preview.innerHTML = '<iframe src="' + iframeSrc + '" loading="lazy"></iframe>';
-  }
-
-  function toggleDocPreview(btn, src, ext) {
-    const wrap    = btn.closest('.bloque-documento-wrap');
-    const preview = wrap.querySelector('.bloque-doc-preview');
-    if (preview.classList.contains('open')) {
-      preview.classList.remove('open');
-      preview.innerHTML = '';
-      btn.classList.remove('active');
-      btn.textContent = '👁 Ver';
-      return;
-    }
-    _abrirDocPreview(preview, src, ext);
-    preview.classList.add('open');
-    btn.classList.add('active');
-    btn.textContent = '✕ Cerrar';
-    setTimeout(function() { preview.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 80);
   }
 
   // Inicializar previsualizaciones abiertas por defecto
