@@ -181,6 +181,25 @@
     .btn-upload-galeria:hover { opacity: .85; }
     .upload-galeria-msg { font-size: 0.8rem; margin-top: 0.4rem; min-height: 1.1rem; }
 
+    /* ── LISTA DE DOCUMENTOS ── */
+    .doc-row {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.55rem 0.7rem; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--panel);
+      margin-bottom: 0.45rem; flex-wrap: wrap;
+    }
+    .doc-row-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .doc-row-name { flex: 1; font-size: 0.82rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+    .doc-row-link, .doc-row-copy, .doc-row-del {
+      font-size: 0.78rem; padding: 0.25rem 0.55rem; border-radius: 6px;
+      border: 1px solid var(--border); cursor: pointer; white-space: nowrap;
+      background: var(--bg); color: var(--text); text-decoration: none;
+    }
+    .doc-row-link:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .doc-row-copy:hover { background: #3a5070; color: #fff; border-color: #3a5070; }
+    .doc-row-del  { color: var(--danger); }
+    .doc-row-del:hover  { background: var(--danger); color: #fff; border-color: var(--danger); }
+
     /* ── BLOQUE EDITOR ── */
     .bloques-section {
       margin-top: 0.7rem; border-top: 1px dashed var(--border); padding-top: 0.6rem;
@@ -229,6 +248,7 @@
 <div id="tabs">
   <button class="tab-btn active" onclick="showTab('contenido', this)">📝 Contenido</button>
   <button class="tab-btn" onclick="showTab('imagenes', this)">🖼 Imágenes</button>
+  <button class="tab-btn" onclick="showTab('documentos', this)">📄 Documentos</button>
 </div>
 
 <!-- ══════════════════════════════════════════════════
@@ -439,6 +459,44 @@
     </div>
   </div>
 </div><!-- /tab-imagenes -->
+
+
+<!-- ══════════════════════════════════════════════════
+     TAB: DOCUMENTOS
+══════════════════════════════════════════════════ -->
+<div id="tab-documentos" class="tab-pane">
+  <div class="panel-box">
+    <h3>📄 Documentos subidos</h3>
+    <p class="img-hint">PDF, Word, Excel, PowerPoint y TXT. Copia la URL para usarla en un bloque Documento.</p>
+
+    <div id="doc-list">
+      {% if documentos %}
+        {% set _icons = {'pdf':'📚','doc':'📄','docx':'📄','xls':'📊','xlsx':'📊','ppt':'📹','pptx':'📹','txt':'📝'} %}
+        {% for doc in documentos %}
+          {% set _ext = doc.rsplit('.',1)[-1] | lower %}
+          <div class="doc-row" id="doc-{{ loop.index }}">
+            <span class="doc-row-icon">{{ _icons.get(_ext, '📄') }}</span>
+            <span class="doc-row-name" title="{{ doc }}">{{ doc }}</span>
+            <a class="doc-row-link" href="/content/documentos/{{ doc }}" target="_blank">🔗 Abrir</a>
+            <button class="doc-row-copy" onclick="copiarURL('/content/documentos/{{ doc }}', this)">📋 Copiar URL</button>
+            <button class="doc-row-del" onclick="delDocumento(this, '{{ doc }}')">✕ Eliminar</button>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="img-hint" id="doc-empty">Aún no hay documentos subidos.</p>
+      {% endif %}
+    </div>
+
+    <div class="upload-galeria" style="margin-top:1.5rem">
+      <h4>📤 Subir documento</h4>
+      <div class="upload-galeria-row">
+        <input type="file" id="input-doc-file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt">
+        <button class="btn-upload-galeria" onclick="subirDocumento()">⬆ Subir</button>
+      </div>
+      <div class="upload-galeria-msg" id="doc-upload-msg"></div>
+    </div>
+  </div>
+</div><!-- /tab-documentos -->
 
 
 <script>
@@ -706,6 +764,63 @@
     } catch (e) {
       alert("Error de conexión.");
     }
+  }
+
+  /* ── DOCUMENTOS: SUBIR Y ELIMINAR ── */
+  const _docIcons = {pdf:'📚',doc:'📄',docx:'📄',xls:'📊',xlsx:'📊',ppt:'📹',pptx:'📹',txt:'📝'};
+
+  async function subirDocumento() {
+    const input = document.getElementById("input-doc-file");
+    const msg   = document.getElementById("doc-upload-msg");
+    if (!input.files.length) { msg.textContent = "Selecciona un archivo primero."; msg.style.color = "var(--danger)"; return; }
+    const fd = new FormData();
+    fd.append("tipo", "documento");
+    fd.append("archivo", input.files[0]);
+    msg.textContent = "Subiendo…"; msg.style.color = "var(--muted)";
+    try {
+      const res  = await fetch("/subir-media", { method: "POST", body: fd });
+      const json = await res.json();
+      if (json.ok) {
+        msg.textContent = `✔ Subido: ${json.nombre}`; msg.style.color = "var(--success)";
+        const ext  = json.nombre.split('.').pop().toLowerCase();
+        const icon = _docIcons[ext] || '📄';
+        const row  = document.createElement("div");
+        row.className = "doc-row";
+        row.innerHTML = `<span class="doc-row-icon">${icon}</span>
+          <span class="doc-row-name" title="${json.nombre}">${json.nombre}</span>
+          <a class="doc-row-link" href="${json.url}" target="_blank">🔗 Abrir</a>
+          <button class="doc-row-copy" onclick="copiarURL('${json.url}',this)">📋 Copiar URL</button>
+          <button class="doc-row-del" onclick="delDocumento(this,'${json.nombre}')">✕ Eliminar</button>`;
+        const empty = document.getElementById("doc-empty");
+        if (empty) empty.remove();
+        document.getElementById("doc-list").appendChild(row);
+        input.value = "";
+      } else {
+        msg.textContent = `✖ ${json.error}`; msg.style.color = "var(--danger)";
+      }
+    } catch (e) { msg.textContent = "✖ Error de conexión."; msg.style.color = "var(--danger)"; }
+  }
+
+  async function delDocumento(btn, nombre) {
+    if (!confirm(`¿Eliminar "${nombre}"? Esta acción no se puede deshacer.`)) return;
+    try {
+      const res  = await fetch("/eliminar-media", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tipo: "documento", nombre })
+      });
+      const json = await res.json();
+      if (json.ok) btn.closest(".doc-row").remove();
+      else alert("Error al eliminar el documento.");
+    } catch (e) { alert("Error de conexión."); }
+  }
+
+  function copiarURL(url, btn) {
+    navigator.clipboard.writeText(url).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = "✔ Copiado";
+      setTimeout(() => btn.textContent = orig, 1800);
+    });
   }
 
   /* ── SUBIR IMAGEN A GALERÍA ── */

@@ -53,6 +53,15 @@ def save_orden(orden):
         json.dump(orden, f, ensure_ascii=False)
 
 
+def get_documentos():
+    """Devuelve lista de archivos en content/documentos/."""
+    docs_dir = os.path.join(CONTENT_DIR, "documentos")
+    try:
+        return sorted(f for f in os.listdir(docs_dir) if not f.startswith("."))
+    except FileNotFoundError:
+        return []
+
+
 # ── Servir archivos de contenido ────────────────────────────
 @app.route("/content/<path:filename>")
 def serve_content(filename):
@@ -102,7 +111,8 @@ def index():
 def editar():
     return render_template("editar.html",
                            contenido=load_contenido(),
-                           images=get_images())
+                           images=get_images(),
+                           documentos=get_documentos())
 
 
 @app.route("/guardar-contenido", methods=["POST"])
