@@ -367,6 +367,12 @@
                           </select>
                           <textarea class="b-html" rows="4" placeholder="Pega aquí el código embed de la plataforma">{{ bloque.html }}</textarea>
                           <small style="color:var(--muted);font-size:0.7rem">💡 En cada red social usa: Compartir → Insertar / Embed → copiar código.</small>
+                        {% elif bloque.tipo == 'documento' %}
+                          <input type="text" class="b-titulo" placeholder="Título del documento" value="{{ bloque.titulo or '' }}">
+                          <input type="text" class="b-descripcion" placeholder="Descripción breve (opcional)" value="{{ bloque.descripcion or '' }}">
+                          <input type="text" class="b-src" placeholder="URL del archivo" value="{{ bloque.src or '' }}">
+                          <div class="upload-row"><input type="file" class="b-file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"><button class="btn-upload" type="button" onclick="subirMedia(this,'documento')">⬆ Subir documento</button></div>
+                          <div class="upload-preview"></div>
                         {% endif %}
                       </div>
                       <button class="btn-del-bloque" type="button" onclick="delBloque(this)" title="Eliminar bloque">✕</button>
@@ -382,6 +388,7 @@
                       <option value="enlace">🔗 Enlace</option>
                       <option value="widget">⚙ Widget / iframe</option>
                       <option value="red_social">🌐 Red Social</option>
+                      <option value="documento">📄 Documento</option>
                     </select>
                     <button class="btn-add-bloque" type="button" onclick="addBloque(this)">＋ Añadir bloque</button>
                   </div>
@@ -503,6 +510,7 @@
               <option value="enlace">🔗 Enlace</option>
               <option value="widget">⚙ Widget / iframe</option>
               <option value="red_social">🌐 Red Social</option>
+              <option value="documento">📄 Documento</option>
             </select>
             <button class="btn-add-bloque" type="button" onclick="addBloque(this)">＋ Añadir bloque</button>
           </div>
@@ -626,6 +634,10 @@
           } else if (tipo === "red_social") {
             b.plataforma = (bEl.querySelector(".b-plataforma")?.value || "").trim();
             b.html       = (bEl.querySelector(".b-html")?.value || "").trim();
+          } else if (tipo === "documento") {
+            b.titulo      = (bEl.querySelector(".b-titulo")?.value || "").trim();
+            b.descripcion = (bEl.querySelector(".b-descripcion")?.value || "").trim();
+            b.src         = (bEl.querySelector(".b-src")?.value || "").trim();
           }
           if (Object.keys(b).length > 1) bloques.push(b);
         });
@@ -779,6 +791,13 @@
         `</select>` +
         `<textarea class="b-html" rows="4" placeholder="Pega aquí el código embed (Compartir → Insertar/Embed → copiar código)"></textarea>` +
         `<small style="color:var(--muted);font-size:0.7rem">💡 Facebook / Instagram / TikTok / Twitter: botón Compartir → Insertar.</small>`;
+    if (tipo === "documento")
+      return lbl +
+        `<input type="text" class="b-titulo" placeholder="Título del documento">` +
+        `<input type="text" class="b-descripcion" placeholder="Descripción breve (opcional)">` +
+        `<input type="text" class="b-src" placeholder="URL del archivo (se rellena al subir)">` +
+        `<div class="upload-row"><input type="file" class="b-file" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"><button class="btn-upload" type="button" onclick="subirMedia(this,'documento')">&#x2B06; Subir documento</button></div>` +
+        `<div class="upload-preview"></div>`;
     return lbl;
   }
 

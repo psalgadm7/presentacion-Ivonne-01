@@ -13,9 +13,10 @@ ORDEN_FILE     = os.path.join(IMAGES_DIR, "orden.json")
 EXTS           = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
 
 ALLOWED_MEDIA = {
-    "imagen": ({"jpg", "jpeg", "png", "gif", "webp"},  "images"),
-    "video":  ({"mp4", "webm", "ogv"},                  "videos"),
-    "audio":  ({"mp3", "wav", "ogg", "m4a"},            "audio"),
+    "imagen":    ({"jpg", "jpeg", "png", "gif", "webp"},                    "images"),
+    "video":     ({"mp4", "webm", "ogv"},                                    "videos"),
+    "audio":     ({"mp3", "wav", "ogg", "m4a"},                             "audio"),
+    "documento": ({"pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt"}, "documentos"),
 }
 
 

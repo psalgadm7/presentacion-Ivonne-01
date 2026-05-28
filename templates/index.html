@@ -201,6 +201,34 @@
     .bloque-red-social > * { max-width: 560px !important; width: 100% !important; }
     .bloque-red-social iframe { border: none; }
 
+    /* ── DOCUMENTOS ── */
+    .bloque-documento {
+      display: flex; align-items: center; gap: 1rem;
+      background: #f4f7fd; border: 1px solid #d8e2f3;
+      border-left: 4px solid var(--color-primary);
+      border-radius: 10px; padding: 0.85rem 1rem;
+    }
+    .bloque-documento .doc-icon {
+      font-size: 2rem; flex-shrink: 0; line-height: 1;
+    }
+    .bloque-documento .doc-info { flex: 1; min-width: 0; }
+    .bloque-documento .doc-title {
+      font-weight: 700; color: var(--color-primary);
+      font-size: 1rem; margin-bottom: 0.2rem;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .bloque-documento .doc-desc {
+      font-size: 0.82rem; color: var(--color-muted); margin-bottom: 0;
+    }
+    .bloque-documento .doc-dl {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      background: var(--color-primary); color: #fff;
+      padding: 0.4rem 0.9rem; border-radius: 7px;
+      text-decoration: none; font-size: 0.84rem; font-weight: 600;
+      white-space: nowrap; flex-shrink: 0; transition: opacity .2s;
+    }
+    .bloque-documento .doc-dl:hover { opacity: .85; }
+
     /* Alternar fondo de secciones */
     .sec-alt { background: #eef2f8; }
     .sec-alt section { background: transparent; }
@@ -415,6 +443,19 @@
               <div class="bloque bloque-widget">{{ bloque.html | safe }}</div>
             {% elif bloque.tipo == 'red_social' %}
               <div class="bloque bloque-red-social">{{ bloque.html | safe }}</div>
+            {% elif bloque.tipo == 'documento' %}
+              {% set _ext = (bloque.src or '').rsplit('.',1)[-1] | lower %}
+              {% set _icons = {'pdf':'📚','doc':'📄','docx':'📄','xls':'📊','xlsx':'📊','ppt':'📹','pptx':'📹','txt':'📝'} %}
+              <div class="bloque bloque-documento">
+                <div class="doc-icon">{{ _icons.get(_ext, '📄') }}</div>
+                <div class="doc-info">
+                  <div class="doc-title">{{ bloque.titulo or bloque.src.rsplit('/',1)[-1] }}</div>
+                  {% if bloque.descripcion %}<p class="doc-desc">{{ bloque.descripcion }}</p>{% endif %}
+                </div>
+                {% if bloque.src %}
+                <a class="doc-dl" href="{{ bloque.src }}" target="_blank" download>⬇ Descargar</a>
+                {% endif %}
+              </div>
             {% endif %}
           {% endfor %}
         {% else %}
