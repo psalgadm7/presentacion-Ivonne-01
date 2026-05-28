@@ -169,6 +169,14 @@
     /* ── BLOQUES DE MEDIA ── */
     .bloque { margin-bottom: 0.9rem; }
     .bloque + .bloque { border-top: 1px solid #f0f2f7; padding-top: 0.9rem; }
+    /* Título y descripción de bloque media */
+    .bloque-media-titulo {
+      font-size: 1rem; font-weight: 700; color: var(--color-primary);
+      margin-bottom: 0.25rem;
+    }
+    .bloque-media-desc {
+      font-size: 0.88rem; color: var(--color-muted); margin-bottom: 0.6rem; line-height: 1.5;
+    }
     .bloque-imagen { text-align: center; }
     .bloque-imagen img { max-width: 100%; border-radius: 8px; }
     .bloque-imagen figcaption,
@@ -410,15 +418,21 @@
             {% if bloque.tipo == 'texto' %}
               <div class="bloque">{{ bloque.contenido | replace('\n\n','<br><br>') | replace('\n','<br>') | safe }}</div>
             {% elif bloque.tipo == 'imagen' %}
-              <figure class="bloque bloque-imagen">
-                <img src="{{ bloque.src }}" alt="{{ bloque.alt or '' }}" loading="lazy">
-                {% if bloque.caption %}<figcaption>{{ bloque.caption }}</figcaption>{% endif %}
-              </figure>
+              <div class="bloque bloque-imagen">
+                {% if bloque.titulo %}<h4 class="bloque-media-titulo">{{ bloque.titulo }}</h4>{% endif %}
+                {% if bloque.descripcion %}<p class="bloque-media-desc">{{ bloque.descripcion }}</p>{% endif %}
+                <figure>
+                  <img src="{{ bloque.src }}" alt="{{ bloque.alt or '' }}" loading="lazy">
+                  {% if bloque.caption %}<figcaption class="bloque-caption">{{ bloque.caption }}</figcaption>{% endif %}
+                </figure>
+              </div>
             {% elif bloque.tipo == 'video' %}
               {#– Detectar si bloque.url apunta a un video local (no a YouTube/Vimeo) –#}
               {% set _vurl = (bloque.url or '') | lower %}
               {% set _is_local = '.mp4' in _vurl or '.webm' in _vurl or '.ogv' in _vurl %}
               <div class="bloque">
+                {% if bloque.titulo %}<h4 class="bloque-media-titulo">{{ bloque.titulo }}</h4>{% endif %}
+                {% if bloque.descripcion %}<p class="bloque-media-desc">{{ bloque.descripcion }}</p>{% endif %}
                 {% if bloque.url and not _is_local %}
                 <div class="bloque-video-wrap">
                   <iframe src="{{ bloque.url }}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -432,6 +446,8 @@
               </div>
             {% elif bloque.tipo == 'audio' %}
               <div class="bloque bloque-audio">
+                {% if bloque.titulo %}<h4 class="bloque-media-titulo">{{ bloque.titulo }}</h4>{% endif %}
+                {% if bloque.descripcion %}<p class="bloque-media-desc">{{ bloque.descripcion }}</p>{% endif %}
                 <audio controls><source src="{{ bloque.src }}">Tu navegador no soporta audio.</audio>
                 {% if bloque.caption %}<p class="bloque-caption">{{ bloque.caption }}</p>{% endif %}
               </div>

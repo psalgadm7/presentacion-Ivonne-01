@@ -357,20 +357,20 @@
                         <div class="bloque-tipo-label">{{ bloque.tipo | upper }}</div>
                         {% if bloque.tipo == 'texto' %}
                           <textarea class="b-contenido" rows="2">{{ bloque.contenido }}</textarea>
-                        {% elif bloque.tipo == 'imagen' %}
-                          <input type="text" class="b-src" placeholder="URL de imagen" value="{{ bloque.src }}">
+                        {% elif bloque.tipo == 'imagen' %}                          <input type="text" class="b-titulo" placeholder="Título (opcional)" value="{{ bloque.titulo or '' }}">
+                          <input type="text" class="b-descripcion" placeholder="Descripción (opcional)" value="{{ bloque.descripcion or '' }}">                          <input type="text" class="b-src" placeholder="URL de imagen" value="{{ bloque.src }}">
                           <input type="text" class="b-alt" placeholder="Texto alternativo" value="{{ bloque.alt or '' }}">
                           <input type="text" class="b-caption" placeholder="Pie de imagen (opcional)" value="{{ bloque.caption or '' }}">
                           <div class="upload-row"><input type="file" class="b-file" accept="image/*"><button class="btn-upload" type="button" onclick="subirMedia(this,'imagen')">⬆ Subir</button></div>
                           <div class="upload-preview"></div>
-                        {% elif bloque.tipo == 'video' %}
-                          <input type="text" class="b-url" placeholder="URL embed YouTube/Vimeo (iframe)" value="{{ bloque.url or '' }}">
+                        {% elif bloque.tipo == 'video' %}                          <input type="text" class="b-titulo" placeholder="Título (opcional)" value="{{ bloque.titulo or '' }}">
+                          <input type="text" class="b-descripcion" placeholder="Descripción (opcional)" value="{{ bloque.descripcion or '' }}">                          <input type="text" class="b-url" placeholder="URL embed YouTube/Vimeo (iframe)" value="{{ bloque.url or '' }}">
                           <input type="text" class="b-src" placeholder="O URL archivo de video" value="{{ bloque.src or '' }}">
                           <input type="text" class="b-caption" placeholder="Pie de video (opcional)" value="{{ bloque.caption or '' }}">
                           <div class="upload-row"><input type="file" class="b-file" accept="video/*"><button class="btn-upload" type="button" onclick="subirMedia(this,'video')">⬆ Subir video</button></div>
                           <div class="upload-preview"></div>
-                        {% elif bloque.tipo == 'audio' %}
-                          <input type="text" class="b-src" placeholder="URL de audio" value="{{ bloque.src }}">
+                        {% elif bloque.tipo == 'audio' %}                          <input type="text" class="b-titulo" placeholder="Título (opcional)" value="{{ bloque.titulo or '' }}">
+                          <input type="text" class="b-descripcion" placeholder="Descripción (opcional)" value="{{ bloque.descripcion or '' }}">                          <input type="text" class="b-src" placeholder="URL de audio" value="{{ bloque.src }}">
                           <input type="text" class="b-caption" placeholder="Pie de audio (opcional)" value="{{ bloque.caption or '' }}">
                           <div class="upload-row"><input type="file" class="b-file" accept="audio/*"><button class="btn-upload" type="button" onclick="subirMedia(this,'audio')">⬆ Subir audio</button></div>
                           <div class="upload-preview"></div>
@@ -674,16 +674,22 @@
           if (tipo === "texto") {
             b.contenido = (bEl.querySelector(".b-contenido")?.value || "").trim();
           } else if (tipo === "imagen") {
-            b.src     = (bEl.querySelector(".b-src")?.value || "").trim();
-            b.alt     = (bEl.querySelector(".b-alt")?.value || "").trim();
-            b.caption = (bEl.querySelector(".b-caption")?.value || "").trim();
+            b.titulo      = (bEl.querySelector(".b-titulo")?.value || "").trim();
+            b.descripcion = (bEl.querySelector(".b-descripcion")?.value || "").trim();
+            b.src         = (bEl.querySelector(".b-src")?.value || "").trim();
+            b.alt         = (bEl.querySelector(".b-alt")?.value || "").trim();
+            b.caption     = (bEl.querySelector(".b-caption")?.value || "").trim();
           } else if (tipo === "video") {
-            b.url     = (bEl.querySelector(".b-url")?.value || "").trim();
-            b.src     = (bEl.querySelector(".b-src")?.value || "").trim();
-            b.caption = (bEl.querySelector(".b-caption")?.value || "").trim();
+            b.titulo      = (bEl.querySelector(".b-titulo")?.value || "").trim();
+            b.descripcion = (bEl.querySelector(".b-descripcion")?.value || "").trim();
+            b.url         = (bEl.querySelector(".b-url")?.value || "").trim();
+            b.src         = (bEl.querySelector(".b-src")?.value || "").trim();
+            b.caption     = (bEl.querySelector(".b-caption")?.value || "").trim();
           } else if (tipo === "audio") {
-            b.src     = (bEl.querySelector(".b-src")?.value || "").trim();
-            b.caption = (bEl.querySelector(".b-caption")?.value || "").trim();
+            b.titulo      = (bEl.querySelector(".b-titulo")?.value || "").trim();
+            b.descripcion = (bEl.querySelector(".b-descripcion")?.value || "").trim();
+            b.src         = (bEl.querySelector(".b-src")?.value || "").trim();
+            b.caption     = (bEl.querySelector(".b-caption")?.value || "").trim();
           } else if (tipo === "enlace") {
             b.url   = (bEl.querySelector(".b-url")?.value || "").trim();
             b.label = (bEl.querySelector(".b-label")?.value || "").trim();
@@ -868,6 +874,8 @@
       return lbl + `<textarea class="b-contenido" rows="2" placeholder="Texto del bloque"></textarea>`;
     if (tipo === "imagen")
       return lbl +
+        `<input type="text" class="b-titulo" placeholder="Título (opcional)">` +
+        `<input type="text" class="b-descripcion" placeholder="Descripción (opcional)">` +
         `<input type="text" class="b-src" placeholder="URL de imagen">` +
         `<input type="text" class="b-alt" placeholder="Texto alternativo">` +
         `<input type="text" class="b-caption" placeholder="Pie de imagen (opcional)">` +
@@ -875,6 +883,8 @@
         `<div class="upload-preview"></div>`;
     if (tipo === "video")
       return lbl +
+        `<input type="text" class="b-titulo" placeholder="Título (opcional)">` +
+        `<input type="text" class="b-descripcion" placeholder="Descripción (opcional)">` +
         `<input type="text" class="b-url" placeholder="URL embed YouTube/Vimeo (iframe src)">` +
         `<input type="text" class="b-src" placeholder="O URL archivo de video">` +
         `<input type="text" class="b-caption" placeholder="Pie de video (opcional)">` +
@@ -882,6 +892,8 @@
         `<div class="upload-preview"></div>`;
     if (tipo === "audio")
       return lbl +
+        `<input type="text" class="b-titulo" placeholder="Título (opcional)">` +
+        `<input type="text" class="b-descripcion" placeholder="Descripción (opcional)">` +
         `<input type="text" class="b-src" placeholder="URL de audio">` +
         `<input type="text" class="b-caption" placeholder="Pie de audio (opcional)">` +
         `<div class="upload-row"><input type="file" class="b-file" accept="audio/*"><button class="btn-upload" type="button" onclick="subirMedia(this,'audio')">&#x2B06; Subir audio</button></div>` +
