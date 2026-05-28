@@ -236,6 +236,26 @@
       white-space: nowrap; flex-shrink: 0; transition: opacity .2s;
     }
     .bloque-documento .doc-dl:hover { opacity: .85; }
+    .doc-ver {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      background: #eef2f8; color: var(--color-primary);
+      border: 1px solid #c8d8ee; padding: 0.4rem 0.9rem;
+      border-radius: 7px; font-size: 0.84rem; font-weight: 600;
+      cursor: pointer; white-space: nowrap; flex-shrink: 0;
+      transition: background .2s;
+    }
+    .doc-ver:hover { background: #dce6f5; }
+    .doc-ver.active { background: var(--color-primary); color: #fff; border-color: transparent; }
+    .bloque-doc-preview {
+      display: none; margin-top: 0.6rem;
+      border-radius: 8px; overflow: hidden;
+      border: 1px solid #d8e2f3;
+    }
+    .bloque-doc-preview.open { display: block; }
+    .bloque-doc-preview iframe {
+      width: 100%; height: 540px;
+      border: none; display: block; background: #f8f8f8;
+    }
 
     /* Alternar fondo de secciones */
     .sec-alt { background: #eef2f8; }
@@ -479,14 +499,20 @@
             {% elif bloque.tipo == 'documento' %}
               {% set _ext = (bloque.src or '').rsplit('.',1)[-1] | lower %}
               {% set _icons = {'pdf':'📚','doc':'📄','docx':'📄','xls':'📊','xlsx':'📊','ppt':'📹','pptx':'📹','txt':'📝'} %}
-              <div class="bloque bloque-documento">
-                <div class="doc-icon">{{ _icons.get(_ext, '📄') }}</div>
-                <div class="doc-info">
-                  <div class="doc-title">{{ bloque.titulo or bloque.src.rsplit('/',1)[-1] }}</div>
-                  {% if bloque.descripcion %}<p class="doc-desc">{{ bloque.descripcion }}</p>{% endif %}
+              <div class="bloque bloque-documento-wrap">
+                <div class="bloque-documento">
+                  <div class="doc-icon">{{ _icons.get(_ext, '📄') }}</div>
+                  <div class="doc-info">
+                    <div class="doc-title">{{ bloque.titulo or bloque.src.rsplit('/',1)[-1] }}</div>
+                    {% if bloque.descripcion %}<p class="doc-desc">{{ bloque.descripcion }}</p>{% endif %}
+                  </div>
+                  {% if bloque.src %}
+                  <button class="doc-ver" onclick="toggleDocPreview(this,'{{ bloque.src }}','{{ _ext }}')">👁 Ver</button>
+                  <a class="doc-dl" href="{{ bloque.src }}" target="_blank" download>⬇ Descargar</a>
+                  {% endif %}
                 </div>
                 {% if bloque.src %}
-                <a class="doc-dl" href="{{ bloque.src }}" target="_blank" download>⬇ Descargar</a>
+                <div class="bloque-doc-preview"></div>
                 {% endif %}
               </div>
             {% endif %}
@@ -566,6 +592,33 @@
 </footer>
 
 <script>
+  /* -- PREVISUALIZACIÓN DE DOCUMENTOS -- */
+  function toggleDocPreview(btn, src, ext) {
+    const wrap    = btn.closest('.bloque-documento-wrap');
+    const preview = wrap.querySelector('.bloque-doc-preview');
+    if (preview.classList.contains('open')) {
+      preview.classList.remove('open');
+      preview.innerHTML = '';
+      btn.classList.remove('active');
+      btn.textContent = '👁 Ver';
+      return;
+    }
+    const officeExts = ['doc','docx','xls','xlsx','ppt','pptx'];
+    let iframeSrc;
+    if (officeExts.includes(ext)) {
+      iframeSrc = 'https://docs.google.com/viewer?url=' +
+        encodeURIComponent(window.location.origin + src) + '&embedded=true';
+    } else {
+      iframeSrc = src;   // PDF y TXT se incrustan directo
+    }
+    preview.innerHTML = '<iframe src="' + iframeSrc + '" loading="lazy"></iframe>';
+    preview.classList.add('open');
+    btn.classList.add('active');
+    btn.textContent = '✕ Cerrar';
+    // Desplazar suavemente hacia la previsualización
+    setTimeout(function() { preview.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 80);
+  }
+
   /* -- CARRUSEL INFORMACIÓN -- */
   (function() {
     const imgs    = [{% for img in images %}"{{ img }}"{% if not loop.last %},{% endif %}{% endfor %}];
