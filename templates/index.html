@@ -436,7 +436,7 @@
 <div id="inicio">
   <h1>{{ contenido.hero_titulo }}</h1>
   <p>{{ contenido.hero_texto }}</p>
-  <a class="btn-hero" href="#{{ contenido.secciones[0].id }}">{{ contenido.hero_boton }}</a>
+  {% if contenido.secciones %}<a class="btn-hero" href="#{{ contenido.secciones[0].id }}">{{ contenido.hero_boton }}</a>{% endif %}
 </div>
 
 <!-- -- SECCIONES -- -->

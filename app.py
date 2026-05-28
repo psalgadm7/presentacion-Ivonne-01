@@ -173,6 +173,23 @@ def sanitize_name(filename):
 
 @app.route("/")
 def index():
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return (
+            "<h2 style='font-family:sans-serif;padding:2rem;color:#555'>"
+            "Sitio en configuraci&oacute;n.<br>"
+            "<small style='font-size:0.7em'>Configura las variables de entorno "
+            "SUPABASE_URL y SUPABASE_KEY en Render.</small></h2>",
+            503,
+        )
+    contenido = load_contenido()
+    if not contenido:
+        return (
+            "<h2 style='font-family:sans-serif;padding:2rem;color:#555'>"
+            "Contenido no encontrado en Supabase.<br>"
+            "<small style='font-size:0.7em'>Ejecuta migrate.py o verifica que la tabla "
+            "'contenido' tenga datos en Supabase.</small></h2>",
+            503,
+        )
     credits = {
         "content_role": CREDIT_CONTENT_ROLE,
         "content_name": CREDIT_CONTENT_NAME,
@@ -181,13 +198,20 @@ def index():
         "project_name": PROJECT_NAME,
     }
     return render_template("index.html",
-                           contenido=load_contenido(),
+                           contenido=contenido,
                            images=get_images(),
                            credits=credits)
 
 
 @app.route("/editar")
 def editar():
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return (
+            "<h2 style='font-family:sans-serif;padding:2rem;color:#c00'>"
+            "Variables de entorno no configuradas.<br>"
+            "<small style='font-size:0.7em'>Necesitas SUPABASE_URL y SUPABASE_KEY en Render.</small></h2>",
+            503,
+        )
     return render_template("editar.html",
                            contenido=load_contenido(),
                            images=get_images(),
