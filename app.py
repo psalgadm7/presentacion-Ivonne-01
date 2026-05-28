@@ -1,111 +1,176 @@
 import os
 import re
-import json
 import unicodedata
-from flask import Flask, render_template, request, jsonify, send_from_directory
+
+import requests                                      # HTTP client (pip: requests)
+import cloudinary                                    # pip: cloudinary
+import cloudinary.uploader
+from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
-# ── Créditos del equipo (configurables via variables de entorno) ──
+# ── Créditos del equipo ─────────────────────────────────────
 CREDIT_CONTENT_ROLE = os.environ.get("CREDIT_CONTENT_ROLE", "Content Creation")
 CREDIT_CONTENT_NAME = os.environ.get("CREDIT_CONTENT_NAME", "Ivonne Casas Gago")
 CREDIT_DEV_ROLE     = os.environ.get("CREDIT_DEV_ROLE",     "Web Design & Development")
 CREDIT_DEV_NAME     = os.environ.get("CREDIT_DEV_NAME",     "Pablo Salgado Miranda")
 PROJECT_NAME        = os.environ.get("PROJECT_NAME",        "Plena")
 
-CONTENT_DIR    = os.path.join(app.root_path, "content")
-CONTENIDO_FILE = os.path.join(CONTENT_DIR, "contenido.json")
-IMAGES_DIR     = os.path.join(CONTENT_DIR, "images")
-ORDEN_FILE     = os.path.join(IMAGES_DIR, "orden.json")
-EXTS           = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+# ── Cloudinary ──────────────────────────────────────────────
+cloudinary.config(
+    cloud_name = os.environ.get("CLOUDINARY_CLOUD_NAME", ""),
+    api_key    = os.environ.get("CLOUDINARY_API_KEY", ""),
+    api_secret = os.environ.get("CLOUDINARY_API_SECRET", ""),
+    secure     = True,
+)
+CLD_FOLDER = os.environ.get("CLOUDINARY_FOLDER", "plena")
 
-ALLOWED_MEDIA = {
-    "imagen":    ({"jpg", "jpeg", "png", "gif", "webp"},                    "images"),
-    "video":     ({"mp4", "webm", "ogv"},                                    "videos"),
-    "audio":     ({"mp3", "wav", "ogg", "m4a"},                             "audio"),
-    "documento": ({"pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt"}, "documentos"),
+# Resource type de Cloudinary por tipo de media
+_CLD_RES = {
+    "imagen":    "image",
+    "video":     "video",
+    "audio":     "video",   # Cloudinary maneja audio bajo resource_type "video"
+    "documento": "raw",
 }
 
+# ── Supabase ────────────────────────────────────────────────
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
+
+
+def _sb(table):
+    return f"{SUPABASE_URL}/rest/v1/{table}"
+
+
+def _sbh(extra=None):
+    """Devuelve headers de Supabase, opcionalmente con campos extra."""
+    h = {
+        "apikey":        SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}",
+        "Content-Type":  "application/json",
+    }
+    if extra:
+        h.update(extra)
+    return h
+
+
+# ── Tipos de media permitidos ───────────────────────────────
+ALLOWED_MEDIA = {
+    "imagen":    {"jpg", "jpeg", "png", "gif", "webp"},
+    "video":     {"mp4", "webm", "ogv"},
+    "audio":     {"mp3", "wav", "ogg", "m4a"},
+    "documento": {"pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt"},
+}
+
+# ─────────────────────── SUPABASE ─────────────────────────
 
 def load_contenido():
-    with open(CONTENIDO_FILE, encoding="utf-8") as f:
-        return json.load(f)
+    try:
+        r = requests.get(_sb("contenido"),
+                         params={"id": "eq.1", "select": "data"},
+                         headers=_sbh(), timeout=10)
+        r.raise_for_status()
+        rows = r.json()
+        return rows[0]["data"] if rows else {}
+    except Exception as e:
+        app.logger.error(f"load_contenido: {e}")
+        return {}
 
 
 def save_contenido(data):
-    with open(CONTENIDO_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    r = requests.patch(_sb("contenido"),
+                       params={"id": "eq.1"},
+                       headers=_sbh({"Prefer": "return=minimal"}),
+                       json={"data": data},
+                       timeout=10)
+    r.raise_for_status()
 
 
 def get_images():
+    """Lista de dicts {nombre, url, public_id} en el orden guardado."""
     try:
-        all_files = {
-            f for f in os.listdir(IMAGES_DIR)
-            if os.path.splitext(f)[1].lower() in EXTS
-        }
-    except FileNotFoundError:
+        r = requests.get(_sb("imagen_orden"),
+                         params={"id": "eq.1", "select": "orden"},
+                         headers=_sbh(), timeout=10)
+        rows = r.json()
+        return (rows[0]["orden"] or []) if rows else []
+    except Exception as e:
+        app.logger.error(f"get_images: {e}")
         return []
-    try:
-        with open(ORDEN_FILE, encoding="utf-8") as f:
-            orden = json.load(f)
-        ordered = [f for f in orden if f in all_files]
-        rest    = sorted(all_files - set(ordered))
-        return ordered + rest
-    except (FileNotFoundError, ValueError):
-        return sorted(all_files)
 
 
 def save_orden(orden):
-    with open(ORDEN_FILE, "w", encoding="utf-8") as f:
-        json.dump(orden, f, ensure_ascii=False)
+    requests.patch(_sb("imagen_orden"),
+                   params={"id": "eq.1"},
+                   headers=_sbh({"Prefer": "return=minimal"}),
+                   json={"orden": orden},
+                   timeout=10)
 
 
 def get_documentos():
-    """Devuelve lista de archivos en content/documentos/."""
-    docs_dir = os.path.join(CONTENT_DIR, "documentos")
+    """Lista de dicts {id, nombre, url, public_id} de tipo documento."""
     try:
-        return sorted(f for f in os.listdir(docs_dir) if not f.startswith("."))
-    except FileNotFoundError:
+        r = requests.get(_sb("media"),
+                         params={"tipo":   "eq.documento",
+                                 "select": "id,nombre,url,public_id",
+                                 "order":  "created_at.desc"},
+                         headers=_sbh(), timeout=10)
+        return r.json() if r.status_code == 200 else []
+    except Exception as e:
+        app.logger.error(f"get_documentos: {e}")
         return []
 
 
-# ── Servir archivos de contenido ────────────────────────────
-@app.route("/content/<path:filename>")
-def serve_content(filename):
-    return send_from_directory(CONTENT_DIR, filename)
+def _add_media_record(tipo, nombre, url, public_id):
+    r = requests.post(_sb("media"),
+                      headers=_sbh({"Prefer": "return=representation"}),
+                      json={"tipo": tipo, "nombre": nombre,
+                            "url": url, "public_id": public_id},
+                      timeout=10)
+    r.raise_for_status()
+    return r.json()[0]
 
 
-# ── Subir media (imagen / video / audio) ────────────────────────
-@app.route("/subir-media", methods=["POST"])
-def subir_media():
-    tipo = request.form.get("tipo", "imagen")
-    if tipo not in ALLOWED_MEDIA:
-        return jsonify({"ok": False, "error": "tipo inválido"}), 400
-    f = request.files.get("archivo")
-    if not f or not f.filename:
-        return jsonify({"ok": False, "error": "sin archivo"}), 400
-    ext = os.path.splitext(f.filename)[1].lstrip(".").lower()
-    exts_ok, subcarpeta = ALLOWED_MEDIA[tipo]
-    if ext not in exts_ok:
-        return jsonify({"ok": False, "error": f"extensión .{ext} no permitida"}), 400
-    # Nombre seguro: normalizar unicode → ASCII, solo [a-zA-Z0-9._-], truncar a 60 chars
-    raw = os.path.splitext(os.path.basename(f.filename))[0]
+def _del_media_record(public_id):
+    requests.delete(_sb("media"),
+                    params={"public_id": f"eq.{public_id}"},
+                    headers=_sbh(), timeout=10)
+
+
+# ─────────────────────── CLOUDINARY ───────────────────────
+
+def _cld_subfolder(tipo):
+    return {"imagen": "images", "video": "videos",
+            "audio": "audio", "documento": "documentos"}[tipo]
+
+
+def cld_upload(file_obj, tipo, nombre_base):
+    """Sube a Cloudinary; retorna (secure_url, public_id)."""
+    result = cloudinary.uploader.upload(
+        file_obj,
+        folder          = f"{CLD_FOLDER}/{_cld_subfolder(tipo)}",
+        public_id       = nombre_base,
+        resource_type   = _CLD_RES[tipo],
+        overwrite       = False,
+        unique_filename = True,
+    )
+    return result["secure_url"], result["public_id"]
+
+
+def cld_delete(public_id, tipo):
+    cloudinary.uploader.destroy(public_id, resource_type=_CLD_RES[tipo])
+
+
+# ─────────────────────── UTILS ────────────────────────────
+
+def sanitize_name(filename):
+    raw = os.path.splitext(os.path.basename(filename))[0]
     raw = unicodedata.normalize("NFKD", raw).encode("ascii", "ignore").decode("ascii")
-    nombre_base = re.sub(r"[^a-zA-Z0-9._-]", "_", raw)[:60].strip("_") or "archivo"
-    nombre = nombre_base + "." + ext
-    dest_dir = os.path.join(CONTENT_DIR, subcarpeta)
-    os.makedirs(dest_dir, exist_ok=True)   # crear carpeta si no existe
-    destino = os.path.join(dest_dir, nombre)
-    counter = 1
-    while os.path.exists(destino):         # evitar sobreescritura
-        nombre = f"{nombre_base}_{counter}.{ext}"
-        destino = os.path.join(dest_dir, nombre)
-        counter += 1
-    f.save(destino)
-    return jsonify({"ok": True, "url": f"/content/{subcarpeta}/{nombre}", "nombre": nombre})
+    return re.sub(r"[^a-zA-Z0-9._-]", "_", raw)[:60].strip("_") or "archivo"
 
 
-# ── Rutas públicas ──────────────────────────────────────────
+# ─────────────────────── RUTAS ────────────────────────────
+
 @app.route("/")
 def index():
     credits = {
@@ -121,7 +186,6 @@ def index():
                            credits=credits)
 
 
-# ── Editor ──────────────────────────────────────────────────
 @app.route("/editar")
 def editar():
     return render_template("editar.html",
@@ -141,43 +205,58 @@ def guardar_contenido():
 
 @app.route("/guardar-orden-imagenes", methods=["POST"])
 def guardar_orden_imagenes():
-    data = request.get_json(force=True)
+    data  = request.get_json(force=True)
     orden = data.get("orden", [])
-    # Validar que sean solo nombres de archivo sin rutas
-    orden = [os.path.basename(f) for f in orden if isinstance(f, str)]
+    if not isinstance(orden, list):
+        return jsonify({"ok": False, "error": "orden inválido"}), 400
     save_orden(orden)
     return jsonify({"ok": True})
 
 
-@app.route("/eliminar-imagen", methods=["POST"])
-def eliminar_imagen():
-    nombre = request.get_json(force=True).get("nombre", "")
-    nombre = os.path.basename(nombre)          # prevenir path traversal
-    if nombre:
-        path = os.path.join(IMAGES_DIR, nombre)
-        if os.path.isfile(path):
-            os.remove(path)
-    return jsonify({"ok": True})
+@app.route("/subir-media", methods=["POST"])
+def subir_media():
+    tipo = request.form.get("tipo", "imagen")
+    if tipo not in ALLOWED_MEDIA:
+        return jsonify({"ok": False, "error": "tipo inválido"}), 400
+    f = request.files.get("archivo")
+    if not f or not f.filename:
+        return jsonify({"ok": False, "error": "sin archivo"}), 400
+    ext = os.path.splitext(f.filename)[1].lstrip(".").lower()
+    if ext not in ALLOWED_MEDIA[tipo]:
+        return jsonify({"ok": False, "error": f"extensión .{ext} no permitida"}), 400
+    nombre_base = sanitize_name(f.filename)
+    nombre      = nombre_base + "." + ext
+    try:
+        url, public_id = cld_upload(f, tipo, nombre_base)
+        _add_media_record(tipo, nombre, url, public_id)
+        if tipo == "imagen":
+            orden = get_images()
+            orden.append({"nombre": nombre, "url": url, "public_id": public_id})
+            save_orden(orden)
+        return jsonify({"ok": True, "url": url, "nombre": nombre, "public_id": public_id})
+    except Exception as e:
+        app.logger.error(f"subir-media: {e}")
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 
 @app.route("/eliminar-media", methods=["POST"])
+@app.route("/eliminar-imagen", methods=["POST"])   # alias para compatibilidad
 def eliminar_media():
-    """Elimina un archivo de media (imagen, video, audio) de content/."""
     data      = request.get_json(force=True)
+    public_id = data.get("public_id", "")
     tipo      = data.get("tipo", "imagen")
-    nombre    = os.path.basename(data.get("nombre", ""))  # prevenir path traversal
-    if tipo not in ALLOWED_MEDIA or not nombre:
+    if not public_id or tipo not in _CLD_RES:
         return jsonify({"ok": False, "error": "datos inválidos"}), 400
-    _, subcarpeta = ALLOWED_MEDIA[tipo]
-    path = os.path.join(CONTENT_DIR, subcarpeta, nombre)
-    if os.path.isfile(path):
-        os.remove(path)
-    return jsonify({"ok": True})
-
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    try:
+        cld_delete(public_id, tipo)
+        _del_media_record(public_id)
+        if tipo == "imagen":
+            orden = [img for img in get_images() if img.get("public_id") != public_id]
+            save_orden(orden)
+        return jsonify({"ok": True})
+    except Exception as e:
+        app.logger.error(f"eliminar-media: {e}")
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 
 if __name__ == "__main__":

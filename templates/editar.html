@@ -440,10 +440,10 @@
     <p class="img-hint">Arrastra para reordenar. Pasa el cursor sobre una imagen y haz clic en ✕ para eliminarla.</p>
     <div class="img-grid" id="img-grid">
       {% for img in images %}
-      <div class="img-item" data-name="{{ img }}">
-        <img src="/content/images/{{ img }}" alt="{{ img }}" loading="lazy">
-        <div class="img-name">{{ img }}</div>
-        <button class="img-del" onclick="delImagen(this, '{{ img }}')" title="Eliminar">✕</button>
+      <div class="img-item" data-nombre="{{ img.nombre }}" data-public-id="{{ img.public_id }}">
+        <img src="{{ img.url }}" alt="{{ img.nombre }}" loading="lazy">
+        <div class="img-name">{{ img.nombre }}</div>
+        <button class="img-del" onclick="delImagen(this)" title="Eliminar">✕</button>
       </div>
       {% endfor %}
     </div>
@@ -473,13 +473,13 @@
       {% if documentos %}
         {% set _icons = {'pdf':'📚','doc':'📄','docx':'📄','xls':'📊','xlsx':'📊','ppt':'📹','pptx':'📹','txt':'📝'} %}
         {% for doc in documentos %}
-          {% set _ext = doc.rsplit('.',1)[-1] | lower %}
-          <div class="doc-row" id="doc-{{ loop.index }}">
+          {% set _ext = doc.nombre.rsplit('.',1)[-1] | lower %}
+          <div class="doc-row" data-nombre="{{ doc.nombre }}" data-public-id="{{ doc.public_id }}">
             <span class="doc-row-icon">{{ _icons.get(_ext, '📄') }}</span>
-            <span class="doc-row-name" title="{{ doc }}">{{ doc }}</span>
-            <a class="doc-row-link" href="/content/documentos/{{ doc }}" target="_blank">🔗 Abrir</a>
-            <button class="doc-row-copy" onclick="copiarURL('/content/documentos/{{ doc }}', this)">📋 Copiar URL</button>
-            <button class="doc-row-del" onclick="delDocumento(this, '{{ doc }}')">✕ Eliminar</button>
+            <span class="doc-row-name" title="{{ doc.nombre }}">{{ doc.nombre }}</span>
+            <a class="doc-row-link" href="{{ doc.url }}" target="_blank">🔗 Abrir</a>
+            <button class="doc-row-copy" onclick="copiarURL('{{ doc.url }}', this)">📋 Copiar URL</button>
+            <button class="doc-row-del" onclick="delDocumento(this)">✕ Eliminar</button>
           </div>
         {% endfor %}
       {% else %}
@@ -740,16 +740,19 @@
   }
 
   /* ── ELIMINAR IMAGEN ── */
-  async function delImagen(btn, nombre) {
+  async function delImagen(btn) {
+    const item     = btn.closest(".img-item");
+    const nombre   = item.dataset.nombre;
+    const publicId = item.dataset.publicId;
     if (!confirm(`¿Eliminar la imagen "${nombre}"? Esta acción no se puede deshacer.`)) return;
     try {
-      const res = await fetch("/eliminar-imagen", {
+      const res = await fetch("/eliminar-media", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nombre })
+        body: JSON.stringify({ tipo: "imagen", public_id: publicId, nombre })
       });
       const json = await res.json();
-      if (json.ok) btn.closest(".img-item").remove();
+      if (json.ok) item.remove();
       else alert("Error al eliminar la imagen.");
     } catch (e) {
       alert("Error de conexión.");
@@ -758,7 +761,11 @@
 
   /* ── GUARDAR ORDEN IMÁGENES ── */
   async function guardarOrdenImagenes() {
-    const orden = Array.from(document.querySelectorAll("#img-grid .img-item")).map(el => el.dataset.name);
+    const orden = Array.from(document.querySelectorAll("#img-grid .img-item")).map(el => ({
+      nombre:    el.dataset.nombre,
+      public_id: el.dataset.publicId,
+      url:       el.querySelector("img").src
+    }));
     try {
       const res = await fetch("/guardar-orden-imagenes", {
         method: "POST",
@@ -792,11 +799,13 @@
         const icon = _docIcons[ext] || '📄';
         const row  = document.createElement("div");
         row.className = "doc-row";
+        row.dataset.nombre   = json.nombre;
+        row.dataset.publicId = json.public_id;
         row.innerHTML = `<span class="doc-row-icon">${icon}</span>
           <span class="doc-row-name" title="${json.nombre}">${json.nombre}</span>
           <a class="doc-row-link" href="${json.url}" target="_blank">🔗 Abrir</a>
           <button class="doc-row-copy" onclick="copiarURL('${json.url}',this)">📋 Copiar URL</button>
-          <button class="doc-row-del" onclick="delDocumento(this,'${json.nombre}')">✕ Eliminar</button>`;
+          <button class="doc-row-del" onclick="delDocumento(this)">✕ Eliminar</button>`;
         const empty = document.getElementById("doc-empty");
         if (empty) empty.remove();
         document.getElementById("doc-list").appendChild(row);
@@ -807,16 +816,19 @@
     } catch (e) { msg.textContent = "✖ Error de conexión."; msg.style.color = "var(--danger)"; }
   }
 
-  async function delDocumento(btn, nombre) {
+  async function delDocumento(btn) {
+    const row      = btn.closest(".doc-row");
+    const nombre   = row.dataset.nombre;
+    const publicId = row.dataset.publicId;
     if (!confirm(`¿Eliminar "${nombre}"? Esta acción no se puede deshacer.`)) return;
     try {
       const res  = await fetch("/eliminar-media", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tipo: "documento", nombre })
+        body: JSON.stringify({ tipo: "documento", public_id: publicId, nombre })
       });
       const json = await res.json();
-      if (json.ok) btn.closest(".doc-row").remove();
+      if (json.ok) row.remove();
       else alert("Error al eliminar el documento.");
     } catch (e) { alert("Error de conexión."); }
   }
@@ -845,10 +857,12 @@
         msg.textContent = `✔ ${json.nombre} subido correctamente.`; msg.style.color = "var(--success)";
         const grid = document.getElementById("img-grid");
         const div  = document.createElement("div");
-        div.className = "img-item"; div.dataset.name = json.nombre;
+        div.className = "img-item";
+        div.dataset.nombre   = json.nombre;
+        div.dataset.publicId = json.public_id;
         div.innerHTML = `<img src="${json.url}" alt="${json.nombre}" loading="lazy">
           <div class="img-name">${json.nombre}</div>
-          <button class="img-del" onclick="delImagen(this,'${json.nombre}')" title="Eliminar">✕</button>`;
+          <button class="img-del" onclick="delImagen(this)" title="Eliminar">✕</button>`;
         grid.appendChild(div);
         input.value = "";
       } else {

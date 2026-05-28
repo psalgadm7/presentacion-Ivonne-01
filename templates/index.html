@@ -562,7 +562,7 @@
       <div class="c-viewport" id="cViewport" onclick="cMove(1)">
         {% for img in images %}
         <div class="c-slide{% if loop.first %} current{% endif %}" data-index="{{ loop.index0 }}">
-          <img src="/content/images/{{ img }}" alt="{{ img }}" loading="lazy" draggable="false" />
+          <img src="{{ img.url }}" alt="{{ img.nombre }}" loading="lazy" draggable="false" />
         </div>
         {% endfor %}
       </div>
@@ -579,8 +579,8 @@
     <div class="c-thumbs" id="cThumbs">
       {% for img in images %}
       <img class="c-thumb{% if loop.first %} active{% endif %}"
-        src="/content/images/{{ img }}"
-        alt="{{ img }}" loading="lazy" onclick="cGoTo({{ loop.index0 }})" />
+        src="{{ img.url }}"
+        alt="{{ img.nombre }}" loading="lazy" onclick="cGoTo({{ loop.index0 }})" />
       {% endfor %}
     </div>
   </section>
@@ -623,7 +623,7 @@
 
   /* -- CARRUSEL INFORMACIÓN -- */
   (function() {
-    const imgs    = [{% for img in images %}"{{ img }}"{% if not loop.last %},{% endif %}{% endfor %}];
+    const imgs    = [{% for img in images %}"{{ img.nombre }}"{% if not loop.last %},{% endif %}{% endfor %}];
     const total   = imgs.length;
     let cur = 0, paused = false, itvl = null, spd = 0;
 
