@@ -6,6 +6,13 @@ from flask import Flask, render_template, request, jsonify, send_from_directory
 
 app = Flask(__name__)
 
+# ── Créditos del equipo (configurables via variables de entorno) ──
+CREDIT_CONTENT_ROLE = os.environ.get("CREDIT_CONTENT_ROLE", "Content Creation")
+CREDIT_CONTENT_NAME = os.environ.get("CREDIT_CONTENT_NAME", "Ivonne Casas Gago")
+CREDIT_DEV_ROLE     = os.environ.get("CREDIT_DEV_ROLE",     "Web Design & Development")
+CREDIT_DEV_NAME     = os.environ.get("CREDIT_DEV_NAME",     "Pablo Salgado Miranda")
+PROJECT_NAME        = os.environ.get("PROJECT_NAME",        "Plena")
+
 CONTENT_DIR    = os.path.join(app.root_path, "content")
 CONTENIDO_FILE = os.path.join(CONTENT_DIR, "contenido.json")
 IMAGES_DIR     = os.path.join(CONTENT_DIR, "images")
@@ -101,9 +108,17 @@ def subir_media():
 # ── Rutas públicas ──────────────────────────────────────────
 @app.route("/")
 def index():
+    credits = {
+        "content_role": CREDIT_CONTENT_ROLE,
+        "content_name": CREDIT_CONTENT_NAME,
+        "dev_role":     CREDIT_DEV_ROLE,
+        "dev_name":     CREDIT_DEV_NAME,
+        "project_name": PROJECT_NAME,
+    }
     return render_template("index.html",
                            contenido=load_contenido(),
-                           images=get_images())
+                           images=get_images(),
+                           credits=credits)
 
 
 # ── Editor ──────────────────────────────────────────────────
