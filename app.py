@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import unicodedata
 from flask import Flask, render_template, request, jsonify, send_from_directory
 
 app = Flask(__name__)
@@ -70,14 +71,18 @@ def subir_media():
     exts_ok, subcarpeta = ALLOWED_MEDIA[tipo]
     if ext not in exts_ok:
         return jsonify({"ok": False, "error": f"extensión .{ext} no permitida"}), 400
-    # Nombre seguro
-    nombre_base = re.sub(r"[^\w.-]", "_", os.path.splitext(os.path.basename(f.filename))[0])
+    # Nombre seguro: normalizar unicode → ASCII, solo [a-zA-Z0-9._-], truncar a 60 chars
+    raw = os.path.splitext(os.path.basename(f.filename))[0]
+    raw = unicodedata.normalize("NFKD", raw).encode("ascii", "ignore").decode("ascii")
+    nombre_base = re.sub(r"[^a-zA-Z0-9._-]", "_", raw)[:60].strip("_") or "archivo"
     nombre = nombre_base + "." + ext
-    destino = os.path.join(CONTENT_DIR, subcarpeta, nombre)
+    dest_dir = os.path.join(CONTENT_DIR, subcarpeta)
+    os.makedirs(dest_dir, exist_ok=True)   # crear carpeta si no existe
+    destino = os.path.join(dest_dir, nombre)
     counter = 1
-    while os.path.exists(destino):          # evitar sobreescritura
+    while os.path.exists(destino):         # evitar sobreescritura
         nombre = f"{nombre_base}_{counter}.{ext}"
-        destino = os.path.join(CONTENT_DIR, subcarpeta, nombre)
+        destino = os.path.join(dest_dir, nombre)
         counter += 1
     f.save(destino)
     return jsonify({"ok": True, "url": f"/content/{subcarpeta}/{nombre}", "nombre": nombre})
