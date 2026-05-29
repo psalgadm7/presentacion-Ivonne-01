@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Editor — OrgDemo</title>
+  <title>Editor — {{ contenido.titulo_sitio }}</title>
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -261,8 +261,21 @@
     <h3>⚙ General</h3>
     <div class="row-2">
       <div class="field">
-        <label>Logo / nombre corto</label>
+        <label>Logo / nombre corto (texto)</label>
         <input type="text" id="f-logo" value="{{ contenido.logo }}">
+      </div>
+      <div class="field">
+        <label>Logo imagen</label>
+        <div style="display:flex;align-items:center;gap:1rem;margin-top:0.3rem">
+          {% if contenido.logo_url %}
+          <img id="logo-preview" src="{{ contenido.logo_url }}" style="height:48px;object-fit:contain;border:1px solid #dce6f3;border-radius:6px;padding:4px;background:#fff">
+          {% else %}
+          <span id="logo-preview" style="color:#aaa;font-size:0.85rem">Sin imagen</span>
+          {% endif %}
+          <input type="file" id="logo-file" accept=".jpg,.jpeg,.png,.webp,.gif" style="font-size:0.85rem">
+          <button type="button" onclick="subirLogo()" style="padding:0.3rem 0.8rem">Subir</button>
+        </div>
+        <input type="hidden" id="f-logo-url" value="{{ contenido.logo_url or '' }}">
       </div>
       <div class="field">
         <label>Título del sitio (pestaña del navegador)</label>
@@ -635,9 +648,33 @@
   }
 
   /* ── RECOLECTAR DATOS ── */
+  async function subirLogo() {
+    const input = document.getElementById("logo-file");
+    if (!input.files[0]) return alert("Selecciona un archivo primero.");
+    const fd = new FormData();
+    fd.append("archivo", input.files[0]);
+    fd.append("tipo", "imagen");
+    const res  = await fetch("/subir-media", { method: "POST", body: fd });
+    const json = await res.json();
+    if (!json.ok) return alert("Error: " + json.error);
+    document.getElementById("f-logo-url").value = json.url;
+    const prev = document.getElementById("logo-preview");
+    if (prev.tagName === "IMG") {
+      prev.src = json.url;
+    } else {
+      const img = document.createElement("img");
+      img.id = "logo-preview";
+      img.src = json.url;
+      img.style = "height:48px;object-fit:contain;border:1px solid #dce6f3;border-radius:6px;padding:4px;background:#fff";
+      prev.replaceWith(img);
+    }
+    alert("✔ Logo subido. Pulsa \"Guardar cambios\" para aplicarlo.");
+  }
+
   function collectData() {
     const data = {
       logo:          document.getElementById("f-logo").value.trim(),
+      logo_url:      document.getElementById("f-logo-url").value.trim(),
       titulo_sitio:  document.getElementById("f-titulo-sitio").value.trim(),
       hero_titulo:   document.getElementById("f-hero-titulo").value.trim(),
       hero_texto:    document.getElementById("f-hero-texto").value.trim(),
