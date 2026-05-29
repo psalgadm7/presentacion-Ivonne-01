@@ -754,7 +754,14 @@
 
   /* Siempre arrancar desde arriba al cargar la página */
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-  if (window.location.hash) {
+
+  const _hoy = new Date().toDateString();
+  const _esPrimerVisitaDelDia = localStorage.getItem('_plena_visita') !== _hoy;
+  if (_esPrimerVisitaDelDia) localStorage.setItem('_plena_visita', _hoy);
+
+  if (_esPrimerVisitaDelDia || !window.location.hash) {
+    window.scrollTo(0, 0);
+  } else {
     /* Compensar navbar fija en carga inicial con hash */
     setTimeout(() => {
       const target = document.querySelector(window.location.hash);
@@ -763,8 +770,6 @@
         window.scrollTo({ top: target.offsetTop - navH, behavior: 'instant' });
       }
     }, 0);
-  } else {
-    window.scrollTo(0, 0);
   }
 
   /* -- NAVBAR -- */
