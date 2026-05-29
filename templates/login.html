@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Acceso al Editor</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(135deg, #1a1d2e 0%, #2a3a60 100%);
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 2.5rem 2rem;
+      width: 100%; max-width: 360px;
+      box-shadow: 0 8px 40px rgba(0,0,0,.4);
+      text-align: center;
+    }
+    .card h1 {
+      font-size: 1.3rem; color: #1a1d2e;
+      margin-bottom: 0.3rem;
+    }
+    .card p.sub {
+      font-size: 0.82rem; color: #888;
+      margin-bottom: 1.6rem;
+    }
+    label {
+      display: block; text-align: left;
+      font-size: 0.8rem; color: #555;
+      margin-bottom: 0.3rem;
+    }
+    input[type="password"] {
+      width: 100%; padding: 0.65rem 0.9rem;
+      border: 1.5px solid #d0d5e0;
+      border-radius: 7px; font-size: 0.95rem;
+      outline: none; transition: border .2s;
+      margin-bottom: 1rem;
+    }
+    input[type="password"]:focus { border-color: #3a5fa0; }
+    button {
+      width: 100%; padding: 0.7rem;
+      background: #3a5fa0; color: #fff;
+      border: none; border-radius: 7px;
+      font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; transition: background .2s;
+    }
+    button:hover { background: #2e4e8a; }
+    .error {
+      background: #fff0f0; color: #c00;
+      border: 1px solid #f5c0c0;
+      border-radius: 6px; padding: 0.5rem 0.8rem;
+      font-size: 0.82rem; margin-bottom: 1rem;
+    }
+    .back {
+      display: block; margin-top: 1.2rem;
+      font-size: 0.78rem; color: #888;
+      text-decoration: none;
+    }
+    .back:hover { color: #3a5fa0; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🔒 Acceso al Editor</h1>
+    <p class="sub">Ingresa la contraseña para continuar</p>
+
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST">
+      <label for="password">Contraseña</label>
+      <input type="password" id="password" name="password"
+             placeholder="••••••••••" autofocus autocomplete="current-password">
+      <button type="submit">Ingresar</button>
+    </form>
+    <a class="back" href="/">← Volver al sitio</a>
+  </div>
+</body>
+</html>

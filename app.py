@@ -1,13 +1,22 @@
 import os
 import re
+import hashlib
+import hmac
 import unicodedata
 
 import requests                                      # HTTP client (pip: requests)
 import cloudinary                                    # pip: cloudinary
 import cloudinary.uploader
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-plena-2026")
+
+# Contraseña del editor (demo) — hash SHA-256 de "plenamujer"
+_EDITOR_PWD_HASH = hashlib.sha256(b"plenamujer").hexdigest()
+
+def _editor_autenticado():
+    return session.get("editor_ok") is True
 
 # ── Créditos del equipo ─────────────────────────────────────
 CREDIT_CONTENT_ROLE = os.environ.get("CREDIT_CONTENT_ROLE", "Content Creation")
@@ -203,8 +212,31 @@ def index():
                            credits=credits)
 
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    error = None
+    if request.method == "POST":
+        pwd = request.form.get("password", "")
+        if hmac.compare_digest(
+            hashlib.sha256(pwd.encode()).hexdigest(),
+            _EDITOR_PWD_HASH
+        ):
+            session["editor_ok"] = True
+            return redirect(url_for("editar"))
+        error = "Contraseña incorrecta."
+    return render_template("login.html", error=error)
+
+
+@app.route("/logout")
+def logout():
+    session.pop("editor_ok", None)
+    return redirect(url_for("index"))
+
+
 @app.route("/editar")
 def editar():
+    if not _editor_autenticado():
+        return redirect(url_for("login"))
     if not SUPABASE_URL or not SUPABASE_KEY:
         return (
             "<h2 style='font-family:sans-serif;padding:2rem;color:#c00'>"
