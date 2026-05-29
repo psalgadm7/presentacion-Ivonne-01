@@ -760,7 +760,15 @@
   if (_esPrimerVisitaDelDia) localStorage.setItem('_plena_visita', _hoy);
 
   if (_esPrimerVisitaDelDia || !window.location.hash) {
+    /* Forzar scroll al inicio — doble llamada para móviles (iOS Safari restaura después) */
     window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }, 120);
   } else {
     /* Compensar navbar fija en carga inicial con hash */
     setTimeout(() => {
